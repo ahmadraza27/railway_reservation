@@ -1,4 +1,3 @@
-
 {%extends "reservations/main.html"%}
 {%block title%}
 about
@@ -11,28 +10,164 @@ about
                 About Us
             </h2>
             <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">
-                We are a leading train booking service in Pakistan, committed to providing affordable and comfortable travel experiences for our customers. Our goal is to make your journey memorable with top-notch features and user-friendly services.
+                We are a leading train booking service in Pakistan, committed to providing affordable and comfortable
+                travel experiences for our customers. Our goal is to make your journey memorable with top-notch features
+                and user-friendly services.
             </p>
         </div>
 
         <div class="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2">
             <div class="relative bg-white shadow-lg rounded-lg overflow-hidden">
-                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://source.unsplash.com/1600x900/?train');"></div>
+                <div class="absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('https://source.unsplash.com/1600x900/?train');"></div>
                 <div class="relative p-8 bg-gradient-to-t from-black opacity-60">
                     <h3 class="text-xl font-bold text-white">Our Mission</h3>
                     <p class="mt-2 text-white">
-                        To revolutionize train travel by providing affordable pricing, comfort, and exceptional customer service. We are committed to enhancing your travel experience at every step.
+                        To revolutionize train travel by providing affordable pricing, comfort, and exceptional customer
+                        service. We are committed to enhancing your travel experience at every step.
                     </p>
                 </div>
             </div>
             <div class="relative bg-white shadow-lg rounded-lg overflow-hidden">
-                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://source.unsplash.com/1600x900/?train-station');"></div>
+                <div class="absolute inset-0 bg-cover bg-center"
+                    style="background-image: url('https://source.unsplash.com/1600x900/?train-station');"></div>
                 <div class="relative p-8 bg-gradient-to-t from-black opacity-60">
                     <h3 class="text-xl font-bold text-white">Our Vision</h3>
                     <p class="mt-2 text-white">
-                        We envision a world where travel is affordable, enjoyable, and accessible to all. Our vision is to offer comfort and luxury without the hefty price tag, making travel a delightful experience for everyone.
+                        We envision a world where travel is affordable, enjoyable, and accessible to all. Our vision is
+                        to offer comfort and luxury without the hefty price tag, making travel a delightful experience
+                        for everyone.
                     </p>
                 </div>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg mt-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">How Our Booking Process Works</h2>
+
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        1
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Visit the Booking Page</h3>
+                        <p class="text-gray-600">Start by visiting our booking page to begin your journey. You'll be
+                            able to plan your trip from there.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        2
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Select Your Travel Cities</h3>
+                        <p class="text-gray-600">Choose the cities you want to travel between. You can easily select
+                            your origin and destination from the dropdown menus.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        3
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Specify the Number of Seats</h3>
+                        <p class="text-gray-600">Enter the number of seats you require for your trip. You can choose the
+                            number based on your travel needs.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        4
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Choose Bed Preferences</h3>
+                        <p class="text-gray-600">Decide if you prefer a seat or a bed for your trip. You can select your
+                            preference to ensure maximum comfort during your journey.</p>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        5
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Choose Travel Preferences</h3>
+                        <p class="text-gray-600">You can also specify whether you prefer a shorter distance or less
+                            travel time. This will help us find the best option for your needs.</p>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        6
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Click "Search Trains"</h3>
+                        <p class="text-gray-600">Once you've entered your preferences, simply click the search button to
+                            find the best train options available for your travel needs.</p>
+                    </div>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        7
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Select the Best Train Option</h3>
+                        <p class="text-gray-600">Browse the available train options and select the best one that suits
+                            your preferences, including schedule and pricing.</p>
+                    </div>
+                </div>
+
+                <!-- Step 8 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        8
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Click on the Pay Button</h3>
+                        <p class="text-gray-600">Once you've chosen your preferred option, click the "Pay" button to
+                            proceed with the payment for your bookings.</p>
+                    </div>
+                </div>
+
+                <!-- Step 9 -->
+                <div class="flex items-start space-x-4">
+                    <div
+                        class="w-12 h-12 bg-red-300 text-white rounded-full flex items-center justify-center text-xl font-semibold">
+                        9
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Proceed to Payment</h3>
+                        <p class="text-gray-600">Follow the prompts to complete your payment. After successful payment,
+                            your bookings will be confirmed and you're all set for your trip!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 text-center">
+                <p class="text-gray-600">Our booking process is designed to be simple and seamless, so you can focus on
+                    what matters most—your travel. We’re here to help make your journey as comfortable and efficient as
+                    possible.</p>
             </div>
         </div>
 
@@ -47,7 +182,8 @@ about
                     </div>
                     <h3 class="mt-4 text-xl font-semibold text-gray-800">Affordable Pricing</h3>
                     <p class="mt-2 text-gray-500 text-center">
-                        Enjoy budget-friendly fares with no hidden charges, so you can travel comfortably without breaking the bank.
+                        Enjoy budget-friendly fares with no hidden charges, so you can travel comfortably without
+                        breaking the bank.
                     </p>
                 </div>
                 <div class="flex flex-col items-center">
@@ -56,7 +192,8 @@ about
                     </div>
                     <h3 class="mt-4 text-xl font-semibold text-gray-800">Comfortable Travel</h3>
                     <p class="mt-2 text-gray-500 text-center">
-                        Our trains are designed with your comfort in mind, offering spacious seating, clean facilities, and smooth journeys.
+                        Our trains are designed with your comfort in mind, offering spacious seating, clean facilities,
+                        and smooth journeys.
                     </p>
                 </div>
                 <div class="flex flex-col items-center">
@@ -65,7 +202,8 @@ about
                     </div>
                     <h3 class="mt-4 text-xl font-semibold text-gray-800">Easy Booking</h3>
                     <p class="mt-2 text-gray-500 text-center">
-                        Book your tickets effortlessly through our website or app, ensuring a seamless experience from start to finish.
+                        Book your tickets effortlessly through our website or app, ensuring a seamless experience from
+                        start to finish.
                     </p>
                 </div>
             </div>
@@ -75,7 +213,8 @@ about
             <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
                 Join Us Today and Experience the Difference!
             </h2>
-            <a href="{% url 'signup' %}" class="mt-6 inline-block bg-red-600 text-white py-3 px-6 rounded-full text-xl font-medium hover:bg-red-700 transition">
+            <a href="{% url 'signup' %}"
+                class="mt-6 inline-block bg-red-600 text-white py-3 px-6 rounded-full text-xl font-medium hover:bg-red-700 transition">
                 Sign Up Now
             </a>
         </div>

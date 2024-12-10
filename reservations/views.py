@@ -607,22 +607,28 @@ def booking_(request):
 
 
 def booking(request):
+    # Check if user is authenticated
+
+    # Get user groups
     is_admin = request.user.groups.filter(
         name='admin').exists() if request.user.is_authenticated else False
     is_collector = request.user.groups.filter(
         name='collector').exists() if request.user.is_authenticated else False
+
     # Fetch all cities for the dropdown options
     cities = calculations.get_cities_all()
     trains = None
     couchType = calculations.get_all_couch_types()
 
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            # Redirect to login page with the next parameter to preserve the current URL
+            return redirect(f'{reverse("login")}?next={request.path}')
         source_id = request.POST.get('source')
         destination_id = request.POST.get('destination')
         order = request.POST.get('orderBy')
 
         seats = int(request.POST.get('seats', 1))
-        # Get number of beds selected by the user
         beds = int(request.POST.get('beds', 1))
         typeCouch = request.POST.get('couchType')
         _type = CouchType.objects.get(id=typeCouch)
@@ -650,16 +656,11 @@ def booking(request):
                 }
                 for station in Station.objects.all()
             }
-            print("stations are")
-            print(stations_with_cities)
             # Calculating price for all paths
             for paths in context['all_paths']:
                 paths['price'] = paths['distance'] * seats * _type.price
 
-            # Fetch available schedules for all paths with beds and seats
-            # for path in context['all_paths']:
-            #     path[3], _ = calculations.fetch_schedules(path[2], beds)  # Fetch schedules for the given path
-
+            # Return to the booking page with the context
             return render(request, 'reservations/booking.html', {
                 'couchTypeId': typeCouch,
                 'seats': seats,
@@ -674,11 +675,13 @@ def booking(request):
                 'stations_with_cities': stations_with_cities,
             })
 
+    # Default page rendering when not POST or user is authenticated
     return render(request, 'reservations/booking.html', {
         'couches': couchType,
         'cities': cities,
         'trains': trains,
-        'is_admin': is_admin, 'is_collector': is_collector
+        'is_admin': is_admin,
+        'is_collector': is_collector
     })
 
 
@@ -1484,11 +1487,12 @@ def create_bill(request):
             booking.save()
         # presentBill.total_amount += sum(
         #     booking.cost for booking in unbilledBookings)
-    allBookings = UserBooking.objects.filter(user=user, bill__is_paid=False)
+    allBookings = UserBooking.objects.filter(user=user, status="PENDING")
+
     ammount = 0
     for booking in allBookings:
-        ammount += booking.cost 
-    presentBill.total_amount= ammount
+        ammount += booking.cost
+    presentBill.total_amount = ammount
     presentBill.save()
     return render(request, 'reservations/bill_summary.html', {'bill': presentBill, 'bookings': allBookings})
     # else:
@@ -1499,18 +1503,65 @@ def create_bill(request):
 @login_required
 def checkout_bill(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)
+
     if request.method == "POST":
         print("the bill id is ")
         print(bill_id)
-        # # Retrieve the bill object
+        bill.mark_as_paid()
+        # Send confirmation email after the user checks out
+        subject = f"Bill Payment Confirmation - Bill ID: {bill.id}"
+        message = f"""
+        Hello {request.user.username},
 
-        # # Mark the bill as paid
-        # bill.mark_as_paid()
+        Thank you for your payment! Your bill has been successfully processed.
+
+        Bill ID: {bill.id}
+        Total Amount: Rs {bill.total_amount}
+        Date of Payment: {bill.created_at}
+
+        We appreciate your business!
+
+        Regards,
+        Ahmad and Najum 
+        """
+
+        # Send the email
+        send_mail(
+            subject,
+            message,
+            # The "from" email (your email address)
+            settings.DEFAULT_FROM_EMAIL,
+            [request.user.email],  # The recipient email (user's email address)
+            fail_silently=False
+        )
+
+        # Optionally, you can mark the bill as paid here
+        # bill.status = 'PAYED'  # Assuming you have a "status" field in the Bill model
+        # bill.save()
 
         # Redirect to a confirmation page or show a success message
         return render(request, 'reservations/home.html', {'bill': bill})
+
     else:
         # Return a 405 Method Not Allowed response for non-POST requests
+        return render(request, 'reservations/payment_success.html', {'bill': bill})
+
+
+@login_required
+def checkout___bill(request, bill_id):
+    bill = get_object_or_404(bill, id=bill_id, user=request.user)
+    if request.method == "post":
+        print("the bill id is ")
+        print(bill_id)
+        # # retrieve the bill object
+
+        # # mark the bill as paid
+        # bill.mark_as_paid()
+
+        # redirect to a confirmation page or show a success message
+        return render(request, 'reservations/home.html', {'bill': bill})
+    else:
+        # return a 405 method not allowed response for non-post requests
         return render(request, 'reservations/payment_success.html', {'bill': bill})
 
 # @login_required
@@ -1558,8 +1609,13 @@ def profile_view(request):
     user = request.user
     user_bookings = UserBooking.objects.filter(user=user)
 
+    # Separate bookings into pending and paid
+    pending_bookings = user_bookings.filter(status='PENDING')
+    paid_bookings = user_bookings.filter(status='PAYED')
+
     context = {
         'user': user,
-        'user_bookings': user_bookings,
+        'pending_bookings': pending_bookings,
+        'paid_bookings': paid_bookings,
     }
     return render(request, 'reservations/profile.html', context)

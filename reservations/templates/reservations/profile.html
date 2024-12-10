@@ -11,26 +11,74 @@ profile
         <p class="text-gray-600">Date Joined: {{ user.date_joined|date:"F j, Y" }}</p>
     </div>
 
-    <!-- User Bookings -->
-    <div>
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Your Bookings</h3>
-        {% if user_bookings %}
-        <ul class="divide-y divide-gray-200">
-            {% for booking in user_bookings %}
-            <li class="py-4 flex justify-between items-center">
-                <div>
+    <!-- Tabs for Bookings -->
+    <div class="flex space-x-4 border-b border-gray-300 mb-6">
+        <button class="tab-button py-2 px-4 text-sm font-semibold text-gray-700 hover:text-red-500 focus:outline-none"
+                id="pending-tab">
+            Pending Bookings
+        </button>
+        <button class="tab-button py-2 px-4 text-sm font-semibold text-gray-700 hover:text-red-500 focus:outline-none"
+                id="paid-tab">
+            Paid Bookings
+        </button>
+    </div>
+
+    <div class="tab-content">
+        <!-- Pending Bookings -->
+        <div id="pending" class="tab-pane">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Pending Bookings</h3>
+            {% if pending_bookings %}
+            <ul class="divide-y divide-gray-200">
+                {% for booking in pending_bookings %}
+                <li class="py-4">
                     <p class="text-gray-800 font-semibold">Schedule: {{ booking.schedule }}</p>
                     <p class="text-sm text-gray-600">Cost: Rs {{ booking.cost }}</p>
                     <p class="text-sm text-gray-600">Status: {{ booking.status }}</p>
-                </div>
-                <span class="text-red-500 font-medium">{{ booking.date|date:"F j, Y" }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p class="text-gray-600">You have no bookings.</p>
-        {% endif %}
+                    <p class="text-sm text-gray-600">Date: {{ booking.date|date:"F j, Y" }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-600">No pending bookings available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Paid Bookings -->
+        <div id="paid" class="tab-pane hidden">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Paid Bookings</h3>
+            {% if paid_bookings %}
+            <ul class="divide-y divide-gray-200">
+                {% for booking in paid_bookings %}
+                <li class="py-4">
+                    <p class="text-gray-800 font-semibold">Schedule: {{ booking.schedule }}</p>
+                    <p class="text-sm text-gray-600">Cost: Rs {{ booking.cost }}</p>
+                    <p class="text-sm text-gray-600">Status: {{ booking.status }}</p>
+                    <p class="text-sm text-gray-600">Date: {{ booking.date|date:"F j, Y" }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-600">No paid bookings available.</p>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<script>
+    // JavaScript for tab functionality
+    document.getElementById('pending-tab').addEventListener('click', () => {
+        document.getElementById('pending').classList.remove('hidden');
+        document.getElementById('paid').classList.add('hidden');
+        document.getElementById('pending-tab').classList.add('text-red-500');
+        document.getElementById('paid-tab').classList.remove('text-red-500');
+    });
+
+    document.getElementById('paid-tab').addEventListener('click', () => {
+        document.getElementById('paid').classList.remove('hidden');
+        document.getElementById('pending').classList.add('hidden');
+        document.getElementById('paid-tab').classList.add('text-red-500');
+        document.getElementById('pending-tab').classList.remove('text-red-500');
+    });
+</script>
 
 {%endblock%}

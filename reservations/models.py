@@ -401,6 +401,19 @@ class Bill(models.Model):
     def mark_as_paid(self):
         """Mark the bill as paid."""
         self.is_paid = True
+        bookings = self.user.userbooking_set.all()
+        for book in bookings:
+            if book.bed == None:
+                book.seat.status.status = "BKL"
+                book.seat.save()
+                book.status = "PAYED"
+                book.save()
+            elif book.seat == None:
+                book.bed.status.status = "BKL"
+                book.bed.save()
+                book.status = "PAYED"
+                book.save()
+            
         self.save()
 
     def __str__(self):
