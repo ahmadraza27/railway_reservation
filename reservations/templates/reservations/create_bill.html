@@ -1,0 +1,32 @@
+
+
+
+{%extends "reservations/main.html"%}
+{%block title%}
+add couches
+{%endblock%}
+{%block content%}
+<button id="pay-button">Pay for All Bookings</button>
+
+<script>
+    document.getElementById('pay-button').addEventListener('click', function() {
+        fetch('/create_bill/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for Django
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert(`Bill created! Total Amount: ${data.total_amount}`);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
+{%endblock%}

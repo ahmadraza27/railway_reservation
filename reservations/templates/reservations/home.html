@@ -1,0 +1,156 @@
+{%extends "reservations/main.html"%}
+{% load static %}
+{%block title%}
+Home
+{%endblock%}
+{%block content%}
+<div class="bg-gray-50">
+    <!-- Hero Section -->
+    <div class="relative bg-cover bg-center" style="background-image: url('{% static 'images/i1.jpg' %}'); height: 500px;">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-16">
+            <h1 class="text-5xl font-extrabold text-white text-center leading-tight">
+                Your Comfortable Journey Awaits
+            </h1>
+            <p class="mt-4 text-lg text-white text-center">
+                Affordable train travel with exceptional comfort, now at your fingertips!
+            </p>
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+    <div class="py-16 px-6 max-w-7xl mx-auto text-center">
+        <h2 class="text-4xl font-extrabold text-red-600">About Us</h2>
+        <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+            We are a leading train booking service in Pakistan, connecting you to the most popular cities at unbeatable prices. Whether you're traveling for business or leisure, our modern fleet ensures a smooth and comfortable journey.
+        </p>
+    </div>
+
+    <!-- Features Section -->
+    <div class="py-16 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-4xl font-extrabold text-red-600">Why Choose Us?</h2>
+            <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+                <div class="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-2xl"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Affordable Fares</h3>
+                    <p class="mt-2 text-gray-500 text-center">
+                        Our low-price guarantee ensures you get the best value for your journey without compromising on comfort.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-couch text-2xl"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Comfortable Seating</h3>
+                    <p class="mt-2 text-gray-500 text-center">
+                        Relax in spacious, modern seating designed for your comfort, ensuring a smooth and enjoyable journey.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">On-Time Travel</h3>
+                    <p class="mt-2 text-gray-500 text-center">
+                        We pride ourselves on punctuality. Rest assured, our trains run on time, ensuring you reach your destination as planned.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Routes Section -->
+    <div class="py-16 px-6 max-w-7xl mx-auto text-center">
+        <h2 class="text-4xl font-extrabold text-red-600">Our Main Routes</h2>
+        <p class="mt-4 text-lg text-gray-600">
+            Our trains connect major cities with comfort and ease. Here are our popular routes:
+        </p>
+
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-12">
+            <!-- Multan to Lahore -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-gray-800">Multan to Lahore</h3>
+                <p class="mt-2 text-gray-500">
+                    Our Multan to Lahore route offers a comfortable journey with scenic views along the way. Whether you're traveling for business or leisure, our service ensures a smooth and stress-free experience.
+                </p>
+                <img src="{% static 'images/i2.jpg' %}" alt="Multan to Lahore Train Route" class="mt-4 w-full h-48 object-cover rounded-lg">
+            </div>
+            <!-- Lahore to Multan -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-gray-800">Lahore to Multan</h3>
+                <p class="mt-2 text-gray-500">
+                    Our Lahore to Multan route offers fast and reliable train services with modern amenities, making your journey between these two great cities easy and enjoyable.
+                </p>
+                <img src="{% static 'images/i2.jpg' %}" alt="Lahore to Multan Train Route" class="mt-4 w-full h-48 object-cover rounded-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="py-16 bg-red-600 text-white text-center">
+        <h2 class="text-4xl font-extrabold">Ready to Book Your Journey?</h2>
+        <p class="mt-4 text-lg max-w-2xl mx-auto">
+            Join thousands of happy travelers who have trusted us with their journeys. Book your train tickets with us today and experience the difference!
+        </p>
+        <a href="{% url 'booking' %}" class="mt-6 inline-block bg-white text-red-600 py-3 px-6 rounded-full text-xl font-medium hover:bg-gray-100 transition">
+            Book Now
+        </a>
+    </div>
+
+    <!-- Footer Section -->
+    <!-- <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="mb-6"> <img src="{% static 'images/i.jpeg' %}" alt="Train Logo" class="w-24 mx-auto">
+            </div>
+            <p class="text-lg text-gray-300">Providing affordable, reliable, and comfortable train services throughout Pakistan.</p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white">Facebook</a>
+                <a href="#" class="text-gray-400 hover:text-white">Twitter</a>
+                <a href="#" class="text-gray-400 hover:text-white">Instagram</a>
+                <a href="#" class="text-gray-400 hover:text-white">LinkedIn</a>
+            </div>
+            <div class="mt-6 text-gray-500 text-sm">
+                <p>&copy; 2024 Your Train Company. All rights reserved.</p>
+            </div>
+        </div>
+    </footer> -->
+</div>
+
+<script>
+    // Function to show the pop-up with the status message
+    function showStatusPopup(message) {
+        var popup = document.getElementById('status-popup');
+        var messageElement = document.getElementById('status-message');
+        popup.classList.remove('hidden');
+        
+        if (message === "AVL") {
+            popup.classList.add('bg-green-100');
+            messageElement.innerText = "Status: Available";
+        }
+        else if (message === "RES") {
+            popup.classList.add('bg-yellow-100');
+            messageElement.innerText = "Status: Reserved";
+        }
+        else if (message === "BKL") {
+            popup.classList.add('bg-red-100');
+            messageElement.innerText = "Status: Booked";
+        }
+
+        // Hide the pop-up after 3 seconds
+        setTimeout(function () {
+            popup.classList.add('hidden');
+        }, 3000); // 3000 ms = 3 seconds
+    }
+
+    // Check if there are any messages to show (passed from Django)
+    {% if messages %}
+    {% for message in messages %}
+    showStatusPopup("{{ message }}");
+    {% endfor %}
+    {% endif %}
+</script>
+
+{%endblock%}

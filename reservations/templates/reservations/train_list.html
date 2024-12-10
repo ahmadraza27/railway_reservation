@@ -1,0 +1,104 @@
+{%extends "reservations/main.html"%}
+{%block title%}
+train list
+{%endblock%}
+{%block content%}
+<!-- reservations/train_list.html -->
+<!-- <div class="max-w-4xl mx-auto mt-10 bg-gray-100 shadow-lg rounded-lg p-8">
+    <h1 class="text-3xl font-bold text-red-600 text-center mb-6">Available Trains</h1>
+
+    <div class="mt-4">
+        <ul class="space-y-6">
+            {% for train in trains %}
+            <li class="flex justify-between items-center bg-white shadow-md p-4 rounded-lg transition transform hover:scale-105">
+                <a href="{% url 'train_detail' train.id %}" 
+                   class="text-lg font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                    🚆 {{ train.trainName }}
+                </a>
+                <span class="text-gray-500 text-sm">Location: {{ train.location }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div> -->
+
+<div class="max-w-4xl mx-auto mt-10 bg-gray-100 rounded-lg p-8">
+    {% if messages %}
+    <div class="fixed top-15 right-5 w-1/3">
+        {% for message in messages %}
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1 class="text-3xl font-bold text-red-600 text-center mb-6">Available Trains</h1>
+
+    <div class="flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Train List</h2>
+        <!-- Button to create a train -->
+        <a href="{% url 'create_train' %}"
+            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
+            + Create Train
+        </a>
+    </div>
+
+    <div class="mt-4">
+        <ul class="space-y-6">
+            {% for train in trains %}
+            {% if train.father%}
+            <li class="flex justify-between items-center bg-white shadow-md p-4 rounded-lg transition transform hover:scale-105">
+                <a href="{% url 'train_detail' train.id %}"
+                    class="text-lg font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                    🚂  {{ train.trainName }}
+                </a>
+                <span class="text-gray-500 text-sm">Location: {{ train.location }}</span>
+
+                <!-- Delete Button -->
+                {% if is_admin %}
+                <button class="text-red-600" onclick="confirmDelete({{ train.id }})">
+                    🗑️ Delete
+                </button>
+                {% endif %}
+            </li>
+            {%endif%}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 class="text-lg font-bold text-gray-700">Are you sure you want to delete this train?</h2>
+        <div class="mt-4 flex justify-between">
+            <button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Cancel</button>
+            <form id="deleteForm" method="POST" action="" class="inline-block">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to handle the confirmation -->
+<script>
+    function confirmDelete(trainId) {
+        // Show the confirmation modal
+        const modal = document.getElementById("confirmationModal");
+        modal.classList.remove("hidden");
+
+        // Set the form action to the correct URL for deletion
+        const deleteForm = document.getElementById("deleteForm");
+        deleteForm.action = "/train/" + trainId + "/delete/";  // Adjust the URL pattern to match your delete URL
+
+        // Handle the cancel button click
+        const cancelButton = document.getElementById("cancelDelete");
+        cancelButton.addEventListener("click", function () {
+            modal.classList.add("hidden");  // Hide the modal
+        });
+    }
+</script>
+
+{%endblock%}

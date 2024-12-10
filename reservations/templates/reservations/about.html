@@ -1,0 +1,85 @@
+
+{%extends "reservations/main.html"%}
+{%block title%}
+about
+{%endblock%}
+{%block content%}
+<div class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                About Us
+            </h2>
+            <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">
+                We are a leading train booking service in Pakistan, committed to providing affordable and comfortable travel experiences for our customers. Our goal is to make your journey memorable with top-notch features and user-friendly services.
+            </p>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2">
+            <div class="relative bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://source.unsplash.com/1600x900/?train');"></div>
+                <div class="relative p-8 bg-gradient-to-t from-black opacity-60">
+                    <h3 class="text-xl font-bold text-white">Our Mission</h3>
+                    <p class="mt-2 text-white">
+                        To revolutionize train travel by providing affordable pricing, comfort, and exceptional customer service. We are committed to enhancing your travel experience at every step.
+                    </p>
+                </div>
+            </div>
+            <div class="relative bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://source.unsplash.com/1600x900/?train-station');"></div>
+                <div class="relative p-8 bg-gradient-to-t from-black opacity-60">
+                    <h3 class="text-xl font-bold text-white">Our Vision</h3>
+                    <p class="mt-2 text-white">
+                        We envision a world where travel is affordable, enjoyable, and accessible to all. Our vision is to offer comfort and luxury without the hefty price tag, making travel a delightful experience for everyone.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-16 text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Why Choose Us?
+            </h2>
+            <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Affordable Pricing</h3>
+                    <p class="mt-2 text-gray-500 text-center">
+                        Enjoy budget-friendly fares with no hidden charges, so you can travel comfortably without breaking the bank.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-couch"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Comfortable Travel</h3>
+                    <p class="mt-2 text-gray-500 text-center">
+                        Our trains are designed with your comfort in mind, offering spacious seating, clean facilities, and smooth journeys.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Easy Booking</h3>
+                    <p class="mt-2 text-gray-500 text-center">
+                        Book your tickets effortlessly through our website or app, ensuring a seamless experience from start to finish.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-16 text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Join Us Today and Experience the Difference!
+            </h2>
+            <a href="{% url 'signup' %}" class="mt-6 inline-block bg-red-600 text-white py-3 px-6 rounded-full text-xl font-medium hover:bg-red-700 transition">
+                Sign Up Now
+            </a>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

@@ -1,0 +1,242 @@
+{%extends "reservations/main.html"%}
+{%block title%}
+Booking
+{%endblock%}
+{%block content%}
+<div class="container mx-auto py-10  ">
+    <h1 class="text-3xl font-bold text-red-500 mb-8 ">Book Your Train</h1>
+
+    <!-- Form -->
+    <form method="POST" action="{% url 'booking' %}" class="bg-[#fff5f7] shadow-lg rounded rounded-lg p-6">
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <label for="source" class="block text-gray-700 font-medium mb-2">Source City</label>
+            <select name="source" id="source"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+                <option value="">Select Source</option>
+                {% for city in cities %}
+                <option value="{{ city.id }}">
+                    {{ city.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="destination" class="block text-gray-700 font-medium mb-2">Destination City</label>
+            <select name="destination" id="destination"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+                <option value="">Select Destination</option>
+                {% for city in cities %}
+                <option value="{{ city.id }}">
+                    {{ city.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="orderBy" class="block text-gray-700 font-medium mb-2">Select Order</label>
+            <select name="orderBy" id="orderBy"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+                <option value="">Select Order</option>
+                <option value="1">Distance</option>
+                <option value="2">Time</option>
+            </select>
+        </div>
+
+        <!-- Seats Input -->
+        <div class="mb-4">
+            <label for="seats" class="block text-gray-700 font-medium mb-2">Number of Seats</label>
+            <input type="number" id="seats" name="seats" min="1" value="{{ seats|default:1 }}"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+        </div>
+        <!-- Beds Input -->
+        <div class="mb-4">
+            <label for="beds" class="block text-gray-700 font-medium mb-2">Number of Beds</label>
+            <input type="number" id="beds" name="beds" min="1" value="{{ beds|default:1 }}"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+        </div>
+
+        <!-- Couch Type Dropdown -->
+        <div class="mb-4">
+            <label for="couchType" class="block text-gray-700 font-medium mb-2">Couch Type</label>
+            <select name="couchType" id="couchType"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+                <option value="">Select Couch Type</option>
+                {% for couch in couches %}
+                <option value="{{ couch.id }}">
+                    {{ couch.name }} (Price: {{ couch.price }} per km)
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">
+            Search Trains
+        </button>
+    </form>
+
+
+    <!-- Train Schedule -->
+    {% if trains %}
+    <h1 class="text-4xl font-semibold text-red-500 my-12 text-center">Train Schedules</h1>
+
+    <div class="container mx-auto rounded rounded-md">
+        <!-- Displaying shortest path -->
+        <div class="card mb-8 bg-white">
+            <div class="flex justify-between bg-[#ff809d] text-white p-6 rounded-t-lg">
+                <div>
+                    <h2 class="text-2xl font-semibold">Shortest Path</h2>
+                    <h class="text-xl font-semibold text-white-500 my-12 text-center">{{string}}</h>
+                    {%if seats > 0%}
+                    <p1>seats {{seats}}</p1>
+                    {%endif%}
+                    {%if beds > 0%}
+                    <p1>beds {{beds}}</p1>
+                    {%endif%}
+                    <p class="mt-2">Distance: {{ trains.shortest_path.distance }} km | Total Time:
+                        {{trains.shortest_path.time }} minutes</p>
+                </div>
+                <h class="text-xl font-semibold text-white-500 my-12 text-center"> Rs -/ {{trains.shortest_path.price}}
+                </h>
+            </div>
+            <div class="p-6">
+                <!-- Path Info -->
+                <div class="mb-6">
+                    <strong class="text-lg text-gray-700">Path:</strong>
+                    <ul class="list-none space-y-2 mt-2 text-gray-600">
+                        {% for station in trains.shortest_path.path %}
+                        {% for station_item in stations_with_cities.items %}
+                        {% if station_item.0 == station.0 %}
+                        <li>Station: {{ station_item.1.station.stationName }} ({{ station_item.1.city }}) - Total Travel
+                            Time: {{ station.1 }} minutes</li>
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Schedules Table -->
+                <table class="min-w-full table-auto mb-6 border-separate border-spacing-0">
+                    <thead class="bg-gray-100 text-left text-sm text-gray-600">
+                        <tr>
+                            <th class="px-4 py-2">Train</th>
+                            <th class="px-4 py-2">Source Station</th>
+                            <th class="px-4 py-2">Destination Station</th>
+                            <th class="px-4 py-2 text-center">Arrival Time</th>
+                            <th class="px-4 py-2 text-center">Departure Time</th>
+                            <th class="px-4 py-2 text-center">Travel Time (min)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-700">
+                        {% for schedule in trains.shortest_path.schedules %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2">{{ schedule.train.trainName }}</td>
+                            <td class="px-4 py-2">{{ schedule.source_station.stationName }}</td>
+                            <td class="px-4 py-2">{{ schedule.destination_station.stationName }}</td>
+                            <td class="px-4 py-2 text-center">{{ schedule.arrivalTime }}</td>
+                            <td class="px-4 py-2 text-center">{{ schedule.departureTime }}</td>
+                            <td class="px-4 py-2 text-center">{{ schedule.travel_time }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Reserve Seat Button -->
+                <form method="POST" action="{% url 'reserve_seat' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="items" id="hidden-items">
+                    <button type="submit" class="px-4 py-2 mt-4 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
+                        Reserve Seat for All Schedules
+                    </button>
+                </form>
+
+                    <!-- {% for schedule in trains.shortest_path.schedules %}
+                    sch.push({{ schedule.id }});
+                    {% endfor %} -->
+                <script>
+                    // Initialize the array
+                    var sch = [];
+
+                    // Loop through schedules and push each schedule ID into the array
+                    {% for schedule in trains.shortest_path.schedules %}
+                    sch.push({{ schedule.id }});
+                    {% endfor %}
+                    var dataToReturn ={sch,seats:{{seats}},cost:{{trains.shortest_path.price}}, beds:{{beds}},couchTypeId:{{couchTypeId}}}
+                    // Assign the list to the hidden input field
+                    document.getElementById('hidden-items').value = JSON.stringify(dataToReturn);
+                </script>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Displaying all paths -->
+    {% for path in trains.all_paths %}
+    <div class="card mb-8 bg-white">
+        <div class="bg-[#ff4d76] text-white p-6 rounded-t-lg flex justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold">Path Details</h2>
+                <h class="text-xl font-semibold text-white-500 my-12 text-center">{{string}}</h>
+                <p class="mt-2">Distance: {{ path.distance }} km | Total Time: {{ path.time }} minutes</p>
+            </div>
+            <h class="text-xl font-semibold text-white-500 my-12 text-center"> Rs - {{path.price }}
+            </h>
+        </div>
+        <div class="p-6">
+            <!-- Path Info -->
+            <div class="mb-6">
+                <strong class="text-lg text-gray-700">Path:</strong>
+                <ul class="list-none space-y-2 mt-2 text-gray-600">
+                    <!-- {% for station in path.path %}
+                        <li>Station: {{ station.0 }} Total Travel Time {{ station.1 }} minutes</li>
+                        {% endfor %} -->
+                    {% for station in path.path %}
+                    {% for station_item in stations_with_cities.items %}
+                    {% if station_item.0 == station.0 %}
+                    <li>Station: {{ station_item.1.station.stationName }} ({{ station_item.1.city }}) - Total Travel
+                        Time: {{ station.1 }} minutes</li>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Schedules Table -->
+            <table class="min-w-full table-auto mb-6 border-separate border-spacing-0">
+                <thead class="bg-gray-100 text-left text-sm text-gray-600">
+                    <tr>
+                        <th class="px-4 py-2">Train</th>
+                        <th class="px-4 py-2">Source Station</th>
+                        <th class="px-4 py-2">Destination Station</th>
+                        <th class="px-4 py-2 text-center">Arrival Time</th>
+                        <th class="px-4 py-2 text-center">Departure Time</th>
+                        <th class="px-4 py-2 text-center">Travel Time (min)</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700">
+                    {% for schedule in path.schedules %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ schedule.train.trainName }}</td>
+                        <td class="px-4 py-2">{{ schedule.source_station.stationName }}</td>
+                        <td class="px-4 py-2">{{ schedule.destination_station.stationName }}</td>
+                        <td class="px-4 py-2 text-center">{{ schedule.arrivalTime }}</td>
+                        <td class="px-4 py-2 text-center">{{ schedule.departureTime }}</td>
+                        <td class="px-4 py-2 text-center">{{ schedule.travel_time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endif %}
+</div>
+
+{%endblock%}

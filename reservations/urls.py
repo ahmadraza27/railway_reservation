@@ -1,0 +1,58 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('booking/', views.booking, name='booking'),
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
+    path('create-train/', views.create_train, name='create-train'),
+    path('trains/', views.train_list, name='train_list'),  # List all trains
+    path('trains/create/', views.create_train, name='create_train'),
+    path('train/<int:train_id>/', views.train_detail, name='train_detail'),
+    path('train/<int:train_id>/add_couch/',
+         views.add_couch_to_train, name='add_couch'),
+    path('train/couch/<int:couch_id>/delete/',
+         views.delete_couch, name='delete_couch'),
+    path('seat/<int:seat_id>/change_status/<int:train_id>/',
+         views.change_seat_status, name='change_seat_status'),
+    path('couch/<int:couch_id>/toggle_all_cabins/',
+         views.toggle_all_cabins, name='toggle_al_cabins'),
+    path('train/<int:train_id>/add_couch/', views.add_couch, name='add_couch'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('signup/', views.signup_view, name='signup'),
+    path('collector_signup/', views.collector_signup_view, name='collector_signup'),
+    path('create_schedule/', views.create_schedule, name='create_schedule'),
+    path('create_station/', views.create_station, name='create_station'),
+    path('create_route/', views.create_route, name='create_route'),
+    path('schedule_list/', views.ScheduleListView.as_view(), name='schedule_list'),
+    path('station_list/', views.StationListView.as_view(), name='station_list'),
+    path('route_list/', views.RouteListView.as_view(), name='route_list'),
+    path('stations/edit/<int:pk>/',
+         views.StationUpdateView.as_view(), name='update_station'),
+    path('stations/delete/<int:pk>/',
+         views.StationDeleteView.as_view(), name='delete_station'),
+    path('schedule/edit/<int:pk>/',
+         views.ScheduleUpdateView.as_view(), name='update_schedule'),
+    path('schedule/delete/<int:pk>/',
+         views.ScheduleDeleteView.as_view(), name='delete_schedule'),
+    path('route/edit/<int:pk>/',
+         views.RouteUpdateView.as_view(), name='update_route'),
+    path('route/delete/<int:pk>/',
+         views.RouteDeleteView.as_view(), name='delete_route'),
+
+    path('train/<int:train_id>/delete/',
+         views.delete_train, name='delete_train'),
+    path('berth/<int:berth_id>/change-status/',
+         views.change_berth_status, name='change_berth_status'),
+    path('change_bed_status/<int:bed_id>/',
+         views.change_bed_status, name='change_bed_status'),
+    path('reserve_seat/', views.reserve_seat, name='reserve_seat'),
+    path('pay/', views.create_bill, name='create_bill'),
+    path('bill/<int:bill_id>/checkout/', views.checkout_bill, name='checkout_bill'),
+    path('profile/', views.profile_view, name='profile'),
+
+
+    # path('couch/<int:couch_id>/add-cabins/', views.add_cabins_to_couch, name='add_cabins_to_couch'),  # Add cabins to couch
+]

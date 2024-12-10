@@ -1,0 +1,87 @@
+{%extends "reservations/main.html"%}
+{%block title%}
+seat selection
+{%endblock%}
+{%block content%}
+<!-- templates/bill_summary.html -->
+<div class="max-w-4xl mx-auto mt-10 p-8 bg-white rounded-lg shadow-lg">
+    <!-- Bill Summary Header -->
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Bill Summary</h2>
+
+    <!-- Bill Details -->
+    <div class="mb-6">
+        <p class="text-gray-600 mb-2">
+            <span class="font-semibold text-gray-800">Bill ID:</span> {{ bill.id }}
+        </p>
+        <p class="text-gray-600 mb-2">
+            <span class="font-semibold text-gray-800">Total Amount:</span> Rs{{ bill.total_amount }}
+        </p>
+        <p class="text-gray-600 mb-2">
+            <span class="font-semibold text-gray-800">Created At:</span> {{ bill.created_at }}
+        </p>
+    </div>
+
+    <!-- Bookings Header -->
+    <h3 class="text-xl font-semibold text-gray-700 mb-4">Bookings Included:</h3>
+
+    <!-- Booking List -->
+    <ul class="space-y-3">
+        {% for booking in bookings %}
+        {% if booking.bed == None %}
+        <li class="bg-gray-50 shadow-sm rounded-lg px-4 py-3 flex items-center">
+            <!-- Booking Icon -->
+            <span class="inline-block bg-red-100 text-red-600 font-medium text-sm rounded-full px-3 py-1 mr-4">
+                Seat {{ booking.seat }}
+            </span>
+
+            <!-- Booking Details -->
+            <div class="flex-grow">
+                <p class="text-gray-800 font-semibold">{{ booking.schedule }}</p>
+                <p class="text-sm text-gray-500">Rs {{ booking.cost }}</p>
+            </div>
+
+            <!-- Booking Cost -->
+            <span class="text-red-500 font-bold text-sm">
+                Rs {{ booking.cost }}
+            </span>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% for booking in bookings %}
+        {% if booking.seat == None %}
+        <li class="bg-gray-50 shadow-sm rounded-lg px-4 py-3 flex items-center">
+            <!-- Booking Icon -->
+            <span class="inline-block bg-green-100 text-green-600 font-medium text-sm rounded-full px-3 py-1 mr-4">
+                Bed {{ booking.bed }}
+            </span>
+
+            <!-- Booking Details -->
+            <div class="flex-grow">
+                <p class="text-gray-800 font-semibold">{{ booking.schedule }}</p>
+                <p class="text-sm text-gray-500">Rs {{ booking.cost }}</p>
+            </div>
+
+            <!-- Booking Cost -->
+            <span class="text-green-500 font-bold text-sm">
+                Rs {{ booking.cost }}
+            </span>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+
+    <!-- Checkout Button -->
+    <div class="mt-6">
+        <form method="GET" action="{% url 'checkout_bill' bill.id %}">
+            {% csrf_token %}
+            <button
+                type="submit"
+                class="bg-red-500 text-white py-2 px-6 rounded-lg shadow hover:bg-red-600 transition duration-300">
+                Checkout Bill #{{ bill.id }}
+            </button>
+        </form>
+    </div>
+</div>
+
+{%endblock%}

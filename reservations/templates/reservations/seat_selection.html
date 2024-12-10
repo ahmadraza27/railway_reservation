@@ -1,0 +1,37 @@
+
+
+{%extends "reservations/main.html"%}
+{%block title%}
+seat selection
+{%endblock%}
+{%block content%}
+<h2>Seat Selection for {{ schedule.train.trainName }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        <thead>
+            <tr>
+                <th>Seat Number</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Select</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for seat in available_seats %}
+            <tr>
+                <td>{{ seat.seatNumber }}</td>
+                <td>{% if seat.cabin %}Cabin {{ seat.cabin.code }}{% else %}Column{% endif %}</td>
+                <td>{{ seat.status.get_status_display }}</td>
+                <td>
+                    <input type="checkbox" name="seats" value="{{ seat.id }}">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit">Book Selected Seats</button>
+</form>
+
+{%endblock%}

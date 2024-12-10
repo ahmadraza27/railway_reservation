@@ -1,0 +1,38 @@
+{%extends "reservations/main.html"%}
+{% load custom_filters %}
+{%block title%}
+create schedule
+{%endblock%}
+{%block content%}
+<div class="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Create Schedule</h2>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="space-y-2">
+            <label for="id_train" class="block text-sm font-medium text-gray-600">Train</label>
+            {{ form.train|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+        
+        <div class="space-y-2">
+            <label for="id_route" class="block text-sm font-medium text-gray-600">Route</label>
+            {{ form.route|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+        
+        <div class="space-y-2">
+            <label for="id_arrivalTime" class="block text-sm font-medium text-gray-600">Arrival Time</label>
+            {{ form.arrivalTime|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+        
+        <div class="space-y-2">
+            <label for="id_departureTime" class="block text-sm font-medium text-gray-600">Departure Time</label>
+            {{ form.departureTime|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+
+        <button type="submit" class="w-full bg-blue-500 text-white font-semibold p-3 rounded hover:bg-blue-600 transition">
+            Create Schedule
+        </button>
+    </form>
+</div>
+{%endblock%}

@@ -1,0 +1,48 @@
+{%extends "reservations/main.html"%}
+{% load custom_filters %}
+{%block title%}
+create station
+{%endblock%}
+{%block content%}
+<div class="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Create Station</h2>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Station Name -->
+        <div class="space-y-2">
+            <label for="{{ station_form.stationName.id_for_label }}" class="block text-sm font-medium text-gray-600">Station Name</label>
+            {{ station_form.stationName|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+
+        <!-- City -->
+        <div class="space-y-2">
+            <label for="{{ station_form.city.id_for_label }}" class="block text-sm font-medium text-gray-600">City</label>
+            {{ station_form.city|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+
+        <!-- Coordinates (Location) -->
+        <h3 class="text-xl font-semibold text-gray-700 mt-6 mb-4">Location</h3>
+        
+        <div class="space-y-2">
+            <label for="{{ location_form.coordinatesX.id_for_label }}" class="block text-sm font-medium text-gray-600">X Coordinate</label>
+            {{ location_form.coordinatesX|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+
+        <div class="space-y-2">
+            <label for="{{ location_form.coordinatesY.id_for_label }}" class="block text-sm font-medium text-gray-600">Y Coordinate</label>
+            {{ location_form.coordinatesY|add_class:"w-full p-2 border border-gray-300 rounded focus:ring focus:ring-blue-200" }}
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-6">
+            <button type="submit" class="w-full bg-blue-500 text-white font-semibold p-3 rounded hover:bg-blue-600 transition">
+                Save Station
+            </button>
+        </div>
+    </form>
+</div>
+
+
+{%endblock%}

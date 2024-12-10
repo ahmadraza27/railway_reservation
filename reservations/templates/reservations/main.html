@@ -1,0 +1,213 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>
+        {%block title%}
+        {%endblock title%}
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{%static 'js/main.js'%}"></script>
+    <!-- <script src="{%static 'js/checkout.js'%}" defer></script> -->
+    <!-- <script>
+        // Mobile menu toggle
+        document.getElementById('menu-button').addEventListener('click', function () {
+            const menu = document.getElementById('menu');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const isHidden = mobileMenu.classList.contains('hidden');
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script> -->
+    <link rel="stylesheet" href="{%static 'css/main.css'%}">
+</head>
+
+<body class="bg-gray-100 flex  flex-col h-screen">
+    <!-- Navbar -->
+    <!-- Navbar Component -->
+    <nav class="bg-red-50 shadow-md">
+        <div class="container mx-auto px-4 flex items-center justify-between h-16">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img class="h-16 rounded rounded-3xl" src="{% static 'images/l.png' %}" alt="TrainWrek Logo">
+                <a href="{% url 'home' %}" class="ml-2 flex text-red-500 text-xl font-bold">
+                    TrainWrek
+                </a>
+            </div>
+
+            <!-- Navigation Links (Hidden in small screens, visible on larger screens) -->
+            <div class="hidden md:flex space-x-6">
+                <a href="{% url 'home' %}" class="text-gray-700 hover:text-red-500">Home</a>
+                <a href="{% url 'about' %}" class="text-gray-700 hover:text-red-500">About</a>
+                <a href="{% url 'contact' %}" class="text-gray-700 hover:text-red-500">Contact</a>
+                <a href="{% url 'booking' %}" class="text-gray-700 hover:text-red-500">Booking</a>
+
+                <!-- Admin Links -->
+                {% if is_collector %}
+                <a href="{% url 'train_list' %}" class="text-gray-700 hover:text-red-500">Train List</a>
+                {% endif %}
+                {% if is_admin %}
+                <a href="{% url 'train_list' %}" class="text-gray-700 hover:text-red-500">Train List</a>
+                <a href="{% url 'schedule_list' %}" class="text-gray-700 hover:text-red-500">Schedules</a>
+                <a href="{% url 'route_list' %}" class="text-gray-700 hover:text-red-500">Routes</a>
+                <a href="{% url 'station_list' %}" class="text-gray-700 hover:text-red-500">Stations</a>
+                {% endif %}
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between">
+                        <!-- Other Navbar Items -->
+                        {% if user.is_authenticated %}
+                        <div>
+                            <a href="{% url 'create_bill' %}"
+                                class="bg-red-500 text-white py-2 px-4 rounded-lg shadow hover:bg-red-600 transition">
+                                Pay
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auth Links -->
+            <div class="hidden md:flex space-x-4">
+                <!-- {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="text-red-500 hover:text-red-700">Profile</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="text-gray-500 hover:text-gray-700">Login</a>
+                {% endif %} -->
+
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="text-red-500 pt-2 hover:text-red-700">Welcome, {{ user.username }}</a>
+                <!-- <p class="text-gray-600 py-2"></p> -->
+                <a href="{% url 'logout' %}"
+                    class="bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                    Logout
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}"
+                    class="bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                    Login
+                </a>
+                <a href="{% url 'signup' %}"
+                    class="ml-2 bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                    Signup
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-700 focus:outline-none" onclick="toggleMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col space-y-4 p-4 bg-white">
+            <a href="{% url 'home' %}" class="text-gray-700 hover:text-red-500">Home</a>
+            <a href="{% url 'about' %}" class="text-gray-700 hover:text-red-500">About</a>
+            <a href="{% url 'booking' %}" class="text-gray-700 hover:text-red-500">Booking</a>
+            <a href="{% url 'contact' %}" class="text-gray-700 hover:text-red-500">Contact</a>
+
+            <!-- Admin Links (Mobile view) -->
+            {% if is_admin %}
+            <a href="{% url 'train_list' %}" class="text-gray-700 hover:text-red-500">Train List</a>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}"
+                class="bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                Logout
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                Login
+            </a>
+            <a href="{% url 'signup' %}"
+                class="ml-2 bg-white text-red-600 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                Signup
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+    <div class="flex-grow">
+        <!-- Your page content here -->
+        {% block content%}
+        {% endblock content%}
+    </div>
+    <!-- <h1 class="lg h-72 test-white bg-red-100">this is heading</h1> -->
+    <!-- <img class="lg hover:h-screen" src="{% static 'images/i.jpeg' %}"> Footer -->
+    <!-- Footer Component -->
+    <footer class="bg-white shadow-md border-t">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-wrap justify-between items-center">
+                <!-- Brand Section -->
+                <div class="mb-6 flex items-center">
+                    <img src="{% static 'images/l.png' %}" alt="Train Logo" class="w-24 mx-auto rounded rounded-3xl">
+                    <a href="{% url 'home' %}" class="ml-4 text-red-500 text-xl font-bold">
+                        TrainWrek
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="flex space-x-6 text-gray-700">
+                    <a href="{% url 'home' %}" class="hover:text-red-500">Home</a>
+                    <a href="{% url 'about' %}" class="hover:text-red-500">About</a>
+                    <a href="{% url 'booking' %}" class="hover:text-red-500">Booking</a>
+                    <a href="{% url 'contact' %}" class="hover:text-red-500">Contact</a>
+                </div>
+
+                <!-- Social Media Icons -->
+                <div class="flex space-x-4">
+                    <a href="https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://x.com/elonmusk/status/1708629197617336398&ved=2ahUKEwiq8rfZ65iKAxX-hv0HHdzqFsIQFnoECDMQAQ&usg=AOvVaw06CVEL4dpzNd2XtausqpJO"
+                        class="text-gray-500 hover:text-red-500">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M22.23 5.924a8.71 8.71 0 0 1-2.36.632 4.162 4.162 0 0 0 1.82-2.284 8.366 8.366 0 0 1-2.65 1.007 4.254 4.254 0 0 0-7.42 2.903 4.18 4.18 0 0 0 .105.97A12.053 12.053 0 0 1 2.2 4.705a4.22 4.22 0 0 0-.576 2.143 4.18 4.18 0 0 0 1.872 3.461 4.11 4.11 0 0 1-1.945-.536v.051a4.216 4.216 0 0 0 3.383 4.08 4.28 4.28 0 0 1-1.947.073 4.2 4.2 0 0 0 3.92 2.928A8.517 8.517 0 0 1 1.5 19.347a12.08 12.08 0 0 0 6.626 1.975c7.86 0 12.16-6.424 12.16-12.004 0-.183-.004-.362-.012-.541A8.48 8.48 0 0 0 22.23 5.924z" />
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/ahmad.raza.27/" class="text-gray-500 hover:text-red-500">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2.163c3.204 0 3.584.012 4.849.07 1.366.062 2.633.346 3.608 1.322.974.974 1.26 2.241 1.322 3.608.058 1.265.07 1.645.07 4.849s-.012 3.584-.07 4.849c-.062 1.366-.346 2.633-1.322 3.608-.974.974-2.241 1.26-3.608 1.322-1.265.058-1.645.07-4.849.07s-3.584-.012-4.849-.07c-1.366-.062-2.633-.346-3.608-1.322-.974-.974-1.26-2.241-1.322-3.608-.058-1.265-.07-1.645-.07-4.849s.012-3.584.07-4.849c.062-1.366.346-2.633 1.322-3.608C4.518 2.509 5.785 2.223 7.151 2.163 8.416 2.105 8.796 2.163 12 2.163zm0-2.163C8.703 0 8.332.013 7.052.07c-1.707.075-3.224.517-4.394 1.687C1.526 3.046 1.084 4.563 1.01 6.27.953 7.55.94 7.921.94 12s.013 4.45.07 5.73c.075 1.707.517 3.224 1.687 4.394 1.17 1.17 2.687 1.612 4.394 1.687 1.28.057 1.651.07 5.03.07 3.39 0 3.751-.013 5.03-.07 1.707-.075 3.224-.517 4.394-1.687 1.17-1.17 1.612-2.687 1.687-4.394.057-1.28.07-1.651.07-5.03s-.013-3.751-.07-5.03c-.075-1.707-.517-3.224-1.687-4.394C18.753.587 17.236.145 15.53.07 14.251.013 13.88 0 12 0zm0 5.838A6.163 6.163 0 1 0 18.163 12 6.173 6.173 0 0 0 12 5.838zm0 10.327A4.164 4.164 0 1 1 16.164 12 4.172 4.172 0 0 1 12 16.165zm6.406-11.845a1.44 1.44 0 1 1-1.44-1.44 1.441 1.441 0 0 1 1.44 1.44z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Copyright Section -->
+            <div class="mt-4 text-center text-gray-500 text-sm">
+                © 2024 Trainy. All Rights Reserved.
+                <p class="text-sm">Made with ❤️ by [Ahmad&Najum]</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
