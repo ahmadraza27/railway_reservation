@@ -73,6 +73,12 @@ Booking
             </select>
         </div>
 
+        <!-- Date Input -->
+        <div class="mb-4">
+            <label for="date" class="block text-gray-700 font-medium mb-2">Number of Beds</label>
+            <input type="date" id="date" name="date" min="1" value="{{ date|default:1 }}"
+                class="w-full border bg-[#fff5f7] border-gray-300 rounded px-4 py-2 hover:ring hover:ring-[#ffa3b8] focus:ring focus:ring-red-100">
+        </div>
         <button type="submit" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">
             Search Trains
         </button>
@@ -98,6 +104,7 @@ Booking
                     {%endif%}
                     <p class="mt-2">Distance: {{ trains.shortest_path.distance }} km | Total Time:
                         {{trains.shortest_path.time }} minutes</p>
+                    <p class="mt-2">{{DOB}}</p>
                 </div>
                 <h class="text-xl font-semibold text-white-500 my-12 text-center"> Rs -/ {{trains.shortest_path.price}}
                 </h>
@@ -164,7 +171,7 @@ Booking
                     {% for schedule in trains.shortest_path.schedules %}
                     sch.push({{ schedule.id }});
                     {% endfor %}
-                    var dataToReturn ={sch,seats:{{seats}},cost:{{trains.shortest_path.price}}, beds:{{beds}},couchTypeId:{{couchTypeId}}}
+                    var dataToReturn ={sch,seats:{{seats}},cost:{{trains.shortest_path.price}}, beds:{{beds}},couchTypeId:{{couchTypeId}},DOB:"{{DOB}}"}
                     // Assign the list to the hidden input field
                     document.getElementById('hidden-items').value = JSON.stringify(dataToReturn);
                 </script>

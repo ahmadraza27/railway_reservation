@@ -11,74 +11,244 @@ profile
         <p class="text-gray-600">Date Joined: {{ user.date_joined|date:"F j, Y" }}</p>
     </div>
 
-    <!-- Tabs for Bookings -->
+    <!-- Tabs for Pending and Paid Bills -->
     <div class="flex space-x-4 border-b border-gray-300 mb-6">
         <button class="tab-button py-2 px-4 text-sm font-semibold text-gray-700 hover:text-red-500 focus:outline-none"
-                id="pending-tab">
-            Pending Bookings
+            id="pending-tab">
+            Pending Bills
         </button>
         <button class="tab-button py-2 px-4 text-sm font-semibold text-gray-700 hover:text-red-500 focus:outline-none"
-                id="paid-tab">
-            Paid Bookings
+            id="paid-tab">
+            Paid Bills
         </button>
     </div>
 
-    <div class="tab-content">
-        <!-- Pending Bookings -->
-        <div id="pending" class="tab-pane">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Pending Bookings</h3>
-            {% if pending_bookings %}
-            <ul class="divide-y divide-gray-200">
-                {% for booking in pending_bookings %}
-                <li class="py-4">
-                    <p class="text-gray-800 font-semibold">Schedule: {{ booking.schedule }}</p>
-                    <p class="text-sm text-gray-600">Cost: Rs {{ booking.cost }}</p>
-                    <p class="text-sm text-gray-600">Status: {{ booking.status }}</p>
-                    <p class="text-sm text-gray-600">Date: {{ booking.date|date:"F j, Y" }}</p>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="text-gray-600">No pending bookings available.</p>
-            {% endif %}
-        </div>
+    <!-- Pending Bills -->
+    <div id="pending" class="tab-pane">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Pending Bills</h3>
+        {% if pending_bills %}
+        <ul class="divide-y divide-gray-200">
+            {% for bill_data in pending_bills %}
+            <li class="py-4">
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-800 font-semibold">Bill ID: {{ bill_data.bill.id }}</p>
+                    <button
+                        class="toggle-bookings bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+                        data-target="pending-bookings-{{ forloop.counter }}">Show Bookings</button>
+                </div>
+                <div id="pending-bookings-{{ forloop.counter }}" class="hidden mt-4">
+                    <ul class="divide-y divide-gray-200">
+                        {% for booking in bill_data.bookings %}
+                        <li class="py-2 flex justify-between items-center">
+                            <div>
+                                <p>Schedule: {{ booking.schedule }}</p>
+                                <p>Cost: {{ booking.cost }}</p>
+                                <p>Status: {{ booking.status }}</p>
+                                <p>Booked On: {{ booking.date }}</p>
+                                <p>Booking For: {{ booking.onData }}</p>
+                            </div>
+                            {% if booking.can_be_deleted %}
+                            <a href="{% url 'delete_booking' booking.id %}" 
+                                class="text-red-500 hover:underline ml-4">
+                                Delete
+                            </a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-600">No pending bills available.</p>
+        {% endif %}
+    </div>
 
-        <!-- Paid Bookings -->
-        <div id="paid" class="tab-pane hidden">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Paid Bookings</h3>
-            {% if paid_bookings %}
-            <ul class="divide-y divide-gray-200">
-                {% for booking in paid_bookings %}
-                <li class="py-4">
-                    <p class="text-gray-800 font-semibold">Schedule: {{ booking.schedule }}</p>
-                    <p class="text-sm text-gray-600">Cost: Rs {{ booking.cost }}</p>
-                    <p class="text-sm text-gray-600">Status: {{ booking.status }}</p>
-                    <p class="text-sm text-gray-600">Date: {{ booking.date|date:"F j, Y" }}</p>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="text-gray-600">No paid bookings available.</p>
-            {% endif %}
-        </div>
+    <!-- Paid Bills -->
+    <div id="paid" class="tab-pane hidden">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Paid Bills</h3>
+        {% if paid_bills %}
+        <ul class="divide-y divide-gray-200">
+            {% for bill_data in paid_bills %}
+            <li class="py-4">
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-800 font-semibold">Bill ID: {{ bill_data.bill.id }}</p>
+                    <button
+                        class="toggle-bookings bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+                        data-target="paid-bookings-{{ forloop.counter }}">Show Bookings</button>
+                </div>
+                <div id="paid-bookings-{{ forloop.counter }}" class="hidden mt-4">
+                    <ul class="divide-y divide-gray-200">
+                        {% for booking in bill_data.bookings %}
+                        <li class="py-2 flex justify-between items-center">
+                            <div>
+                                <p>Schedule: {{ booking.schedule }}</p>
+                                <p>Cost: {{ booking.cost }}</p>
+                                <p>Status: {{ booking.status }}</p>
+                                <p>Booked On: {{ booking.date }}</p>
+                                <p>Booking For: {{ booking.onData }}</p>
+                            </div>
+                            {% if booking.can_be_deleted %}
+                            <a href="{% url 'delete_booking' booking.id %}" 
+                                class="text-red-500 hover:underline ml-4">
+                                Delete
+                            </a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-600">No paid bills available.</p>
+        {% endif %}
     </div>
 </div>
 
+<!-- JavaScript -->
 <script>
-    // JavaScript for tab functionality
+    // Tab Switching Logic
     document.getElementById('pending-tab').addEventListener('click', () => {
         document.getElementById('pending').classList.remove('hidden');
         document.getElementById('paid').classList.add('hidden');
-        document.getElementById('pending-tab').classList.add('text-red-500');
-        document.getElementById('paid-tab').classList.remove('text-red-500');
     });
 
     document.getElementById('paid-tab').addEventListener('click', () => {
         document.getElementById('paid').classList.remove('hidden');
         document.getElementById('pending').classList.add('hidden');
-        document.getElementById('paid-tab').classList.add('text-red-500');
-        document.getElementById('pending-tab').classList.remove('text-red-500');
+    });
+
+    // Toggle Bookings Logic
+    document.querySelectorAll('.toggle-bookings').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-target');
+            const targetElement = document.getElementById(targetId);
+            if (targetElement.classList.contains('hidden')) {
+                targetElement.classList.remove('hidden');
+                button.innerText = 'Hide Bookings';
+            } else {
+                targetElement.classList.add('hidden');
+                button.innerText = 'Show Bookings';
+            }
+        });
     });
 </script>
 
+
+<!-- Status Popup -->
+<div id="status-popup"
+    class="fixed bg-red-400 top-0 right-0 p-4 mt-20 text-black rounded-lg shadow-lg hidden bg-opacity-80">
+    <p id="status-message" class="text-lg font-semibold"></p>
+</div>
+
+<script>
+    // Function to show the pop-up with the status message
+    function showStatusPopup(message) {
+        var popup = document.getElementById('status-popup');
+        var messageElement = document.getElementById('status-message');
+        popup.classList.remove('hidden');
+
+        messageElement.innerText = message;
+        // Hide the pop-up after 3 seconds
+        setTimeout(function () {
+            popup.classList.add('hidden');
+        }, 3000); // 3000 ms = 3 seconds
+    }
+
+    // Check if there are any messages to show (passed from Django)
+    {% if messages %}
+    {% for message in messages %}
+    showStatusPopup("{{ message }}");
+    {% endfor %}
+    {% endif %}
+</script>
+
+
+<!-- Status Popup -->
+<div id="status-popup"
+    class="fixed bg-red-400 top-0 right-0 p-4 mt-20 text-black rounded-lg shadow-lg hidden bg-opacity-80">
+    <p id="status-message" class="text-lg font-semibold"></p>
+</div>
+
+<script>
+    // Function to show the pop-up with the status message
+    function showStatusPopup(message) {
+        var popup = document.getElementById('status-popup');
+        var messageElement = document.getElementById('status-message');
+        popup.classList.remove('hidden');
+
+        messageElement.innerText = message;
+        // Hide the pop-up after 3 seconds
+        setTimeout(function () {
+            popup.classList.add('hidden');
+        }, 3000); // 3000 ms = 3 seconds
+    }
+
+    // Check if there are any messages to show (passed from Django)
+    {% if messages %}
+    {% for message in messages %}
+    showStatusPopup("{{ message }}");
+    {% endfor %}
+    {% endif %}
+</script>
+
+<!-- Status Popup -->
+<div id="status-popup"
+    class="fixed bg-red-400 top-0 right-0 p-4 mt-20 text-black rounded-lg shadow-lg hidden bg-opacity-80">
+    <p id="status-message" class="text-lg font-semibold"></p>
+</div>
+
+<script>
+    // Function to show the pop-up with the status message
+    function showStatusPopup(message) {
+        var popup = document.getElementById('status-popup');
+        var messageElement = document.getElementById('status-message');
+        popup.classList.remove('hidden');
+
+        messageElement.innerText = message;
+        // Hide the pop-up after 3 seconds
+        setTimeout(function () {
+            popup.classList.add('hidden');
+        }, 3000); // 3000 ms = 3 seconds
+    }
+
+    // Check if there are any messages to show (passed from Django)
+    {% if messages %}
+    {% for message in messages %}
+    showStatusPopup("{{ message }}");
+    {% endfor %}
+    {% endif %}
+</script>
+
+
+<!-- Status Popup -->
+<div id="status-popup"
+    class="fixed bg-red-400 top-0 right-0 p-4 mt-20 text-black rounded-lg shadow-lg hidden bg-opacity-80">
+    <p id="status-message" class="text-lg font-semibold"></p>
+</div>
+
+<script>
+    // Function to show the pop-up with the status message
+    function showStatusPopup(message) {
+        var popup = document.getElementById('status-popup');
+        var messageElement = document.getElementById('status-message');
+        popup.classList.remove('hidden');
+
+        messageElement.innerText = "Email Regarding To Deletion Is Sent To Your Email";
+        // Hide the pop-up after 3 seconds
+        setTimeout(function () {
+            popup.classList.add('hidden');
+        }, 3000); // 3000 ms = 3 seconds
+    }
+
+    // Check if there are any messages to show (passed from Django)
+    {% if messages %}
+    {% for message in messages %}
+    showStatusPopup("{{ message }}");
+    {% endfor %}
+    {% endif %}
+</script>
 {%endblock%}

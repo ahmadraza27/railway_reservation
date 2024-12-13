@@ -26,51 +26,50 @@ seat selection
         <h3 class="text-xl font-semibold text-gray-700 mb-4">Bookings Included:</h3>
 
         <!-- Booking List -->
-        <ul class="space-y-3">
-            {% for booking in bookings %}
-                {% if booking.bed == None %}
-                    <li class="bg-gray-50 shadow-sm rounded-lg px-4 py-3 flex items-center">
-                        <!-- Booking Icon -->
-                        <span class="inline-block bg-red-100 text-red-600 font-medium text-sm rounded-full px-3 py-1 mr-4">
-                            Seat {{ booking.seat }}
-                        </span>
+<ul class="space-y-6">
+    {% for booking in bookings %}
+        <li class="bg-white shadow-lg rounded-xl px-8 py-6 flex items-center justify-between space-x-6 hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
+            <!-- Booking Icon -->
+            {% if booking.bed == None %}
+                <div class="flex-shrink-0">
+                    <span class="inline-block bg-red-100 text-red-600 font-medium text-sm rounded-full px-4 py-2">
+                        Seat {{ booking.seat }}
+                    </span>
+                </div>
+            {% else %}
+                <div class="flex-shrink-0">
+                    <span class="inline-block bg-green-100 text-green-600 font-medium text-sm rounded-full px-4 py-2">
+                        Bed {{ booking.bed }}
+                    </span>
+                </div>
+            {% endif %}
 
-                        <!-- Booking Details -->
-                        <div class="flex-grow">
-                            <p class="text-gray-800 font-semibold">{{ booking.schedule }}</p>
-                            <p class="text-sm text-gray-500">Rs {{ booking.cost }}</p>
-                        </div>
+            <!-- Booking Details -->
+            <div class="flex-grow space-y-2">
+                <p class="text-gray-800 font-semibold text-lg">{{ booking.schedule }}</p>
+                <p class="text-sm text-gray-500">Rs {{ booking.cost }}</p>
+            </div>
 
-                        <!-- Booking Cost -->
-                        <span class="text-red-500 font-bold text-sm">
-                            Rs {{ booking.cost }}
-                        </span>
-                    </li>
-                {% endif %}
-            {% endfor %}
+            <!-- Booking Cost and Date -->
+            <div class="text-right flex flex-col justify-between space-y-2">
+                <span class="text-gray-700 font-bold text-lg">
+                    Rs {{ booking.cost }}
+                </span>
+                <p class="text-xs text-gray-500">{{ booking.onData }}</p>
+            </div>
 
-            {% for booking in bookings %}
-                {% if booking.seat == None %}
-                    <li class="bg-gray-50 shadow-sm rounded-lg px-4 py-3 flex items-center">
-                        <!-- Booking Icon -->
-                        <span class="inline-block bg-green-100 text-green-600 font-medium text-sm rounded-full px-3 py-1 mr-4">
-                            Bed {{ booking.bed }}
-                        </span>
+            <!-- Remove Button -->
+            <form method="POST" action="{% url 'remove_booking' booking.id %}" class="ml-6">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-500 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-red-600 transition duration-300">
+                    Remove
+                </button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
 
-                        <!-- Booking Details -->
-                        <div class="flex-grow">
-                            <p class="text-gray-800 font-semibold">{{ booking.schedule }}</p>
-                            <p class="text-sm text-gray-500">Rs {{ booking.cost }}</p>
-                        </div>
 
-                        <!-- Booking Cost -->
-                        <span class="text-green-500 font-bold text-sm">
-                            Rs {{ booking.cost }}
-                        </span>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
 
         <!-- Checkout Button -->
         <div class="mt-6 text-center">

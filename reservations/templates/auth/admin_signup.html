@@ -1,11 +1,12 @@
 
+
 {%extends "reservations/main.html"%}
 {%block title%}
-collertor signup
+admin signup
 {%endblock%}
 {%block content%}
 <div class="rounded-lg px-10 py-8 max-w-md mx-auto">
-    <h1 class="text-3xl font-extrabold text-red-600 mb-6 text-center">Create A Collector Account</h1>
+    <h1 class="text-3xl font-extrabold text-red-600 mb-6 text-center">Create An Admin Account</h1>
     <form method="POST" class="space-y-6">
         {% csrf_token %}
         <div>
@@ -30,7 +31,7 @@ collertor signup
         </div>
         <button type="submit"
             class="w-full bg-red-600 text-white py-3 px-4 rounded-md font-medium hover:bg-red-700 transition duration-200">
-            Become A Collector 
+            Become An Admin
         </button>
     </form>
     <p class="text-sm text-center mt-6 text-gray-500">

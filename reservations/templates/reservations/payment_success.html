@@ -299,7 +299,7 @@ payment success
 </form>
 <!-- templates/post_form.html -->
 
-<form method="POST" action="{% url 'checkout_bill' 1 %}" class="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+<form method="POST" action="{% url 'checkout_bill' bill.id %}" class="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
   {% csrf_token %}
   
   <!-- <div class="mb-4">

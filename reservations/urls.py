@@ -23,6 +23,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('signup/', views.signup_view, name='signup'),
     path('collector_signup/', views.collector_signup_view, name='collector_signup'),
+    path('admin_signup/', views.admin_signup_view, name='admin_signup'),
     path('create_schedule/', views.create_schedule, name='create_schedule'),
     path('create_station/', views.create_station, name='create_station'),
     path('create_route/', views.create_route, name='create_route'),
@@ -52,6 +53,8 @@ urlpatterns = [
     path('pay/', views.create_bill, name='create_bill'),
     path('bill/<int:bill_id>/checkout/', views.checkout_bill, name='checkout_bill'),
     path('profile/', views.profile_view, name='profile'),
+    path('remove-booking/<int:booking_id>/', views.remove_booking, name='remove_booking'),
+    path('delete_booking/<int:booking_id>/', views.delete_booking, name='delete_booking'), 
 
 
     # path('couch/<int:couch_id>/add-cabins/', views.add_cabins_to_couch, name='add_cabins_to_couch'),  # Add cabins to couch

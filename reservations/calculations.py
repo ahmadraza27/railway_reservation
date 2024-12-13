@@ -102,7 +102,7 @@ def fetch_schedules(path, num_beds):
     destination_station_id = path[0][0]
     first_schedule = Schedule.objects.filter(
         route__destinationStation_id=destination_station_id
-    )
+    ).filter()
     print(first_schedule)
     element = first_schedule.first().departureTime
     prev_time = element.strftime("%H:%M")

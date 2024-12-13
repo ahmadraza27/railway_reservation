@@ -1,4 +1,16 @@
 # Assuming calculations is your module for getting cities and routes
+from django.core.mail import EmailMessage
+from django.utils.timezone import now
+from django.templatetags.static import static
+from datetime import timedelta
+from django.utils import timezone
+from reportlab.lib import colors
+from django.core.mail.message import EmailMessage
+from django.template.loader import render_to_string
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from io import BytesIO
 from django.db.models import Q
 import json
 import pprint
@@ -35,6 +47,38 @@ def logout_view(request):
 
 
 allowed_users(allowed_roles=['admin'])
+
+
+def admin_signup_view(request):
+    # if request.user.is_authenticated:
+    #     return redirect("/")  # Redirect to home if already logged in
+    is_admin = request.user.groups.filter(
+        name='admin').exists() if request.user.is_authenticated else False
+    is_collector = request.user.groups.filter(
+        name='collector').exists() if request.user.is_authenticated else False
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+        email = request.POST.get("email")  # Get the email from the form
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match")
+        elif User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists")
+        # Check if email already exists
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered")
+        else:
+            user = User.objects.create_user(
+                username=username, password=password, email=email)  # Add email
+            user.groups.add(Group.objects.get(name="admin"))
+            user.save()
+            login(request, user)
+            return redirect("/")  # Redirect to the home page after signup
+
+    return render(request, "auth/admin_signup.html", {'is_admin': is_admin, 'is_collector': is_collector})
 
 
 def collector_signup_view(request):
@@ -627,6 +671,7 @@ def booking(request):
         source_id = request.POST.get('source')
         destination_id = request.POST.get('destination')
         order = request.POST.get('orderBy')
+        date = request.POST.get("date")
 
         seats = int(request.POST.get('seats', 1))
         beds = int(request.POST.get('beds', 1))
@@ -662,6 +707,7 @@ def booking(request):
 
             # Return to the booking page with the context
             return render(request, 'reservations/booking.html', {
+                "DOB": str(date),
                 'couchTypeId': typeCouch,
                 'seats': seats,
                 'beds': beds,
@@ -855,7 +901,7 @@ def contact(request):
 def seat_selection(request, schedule_id):
     schedule = Schedule.objects.get(id=schedule_id)
     available_seats = Seat.objects.filter(
-        cabin__couch__train=schedule.train, status__status="AVL"
+        cabin__couch__train=schedule.copyTrain, status__status="AVL"
     )
 
     if request.method == "POST":
@@ -969,7 +1015,7 @@ class ScheduleListView(ListView):
 
     def dispatch(self, request, *args, **kwargs):
         # Check if the user is authenticated and belongs to the 'admin' group
-        if not request.user.is_authenticated or not request.user.groups.filter(name='admin').exists():
+        if not request.user.is_authenticated or not request.user.groups.filter(Q(name='admin') | Q(name="collector")).exists():
             # You can redirect to another page or return a forbidden response
             return HttpResponseForbidden("You do not have permission to access this page.")
             # OR redirect
@@ -1406,34 +1452,43 @@ def reserve_seat(request):
     # Get the items as a JSON string
     items = request.POST.get('items')
     print('reserving seats')
+    print('Raw items:', items)  # Debug: Check the raw data received
+
     if items:
-        # Parse the JSON string into a Python list
-        item_list = json.loads(items)
-        print(item_list)  # This will show the list of schedule IDs
+        try:
+            # Parse the JSON string into a Python dictionary
+            item_list = json.loads(items)
+            print('Parsed items:', item_list)  # Debug: Check parsed data
 
-        # Iterate over each schedule ID and reserve seats
-        for item in item_list['sch']:
-            s = Schedule.objects.get(id=item)
-            # Assuming you pass 'seats' and 'cost' along with user
-            reserved_seats = s.reserve_seats(
-                item_list['seats'], request.user, item_list['couchTypeId'])
-            reserved_beds = s.reserve_beds(
-                item_list['beds'], request.user, item_list['couchTypeId'])
-            # Adding a success message
-            if reserved_seats:
-                messages.success(request, f"Successfully reserved {
-                                 reserved_seats} seats for schedule {item}")
-            else:
-                messages.error(
-                    request, f"Failed to reserve seats for schedule {item}")
+            # Iterate over each schedule ID and reserve seats
+            for item in item_list['sch']:
+                print("this is in reserve seats ")
+                print(item_list['DOB'])
+                s = Schedule.objects.get(id=item)
+                reserved_seats = s.reserve_seats(item_list['DOB'],
+                                                 item_list['seats'], request.user, item_list['couchTypeId']
+                                                 )
+                reserved_beds = s.reserve_beds(item_list['DOB'],
+                                               item_list['beds'], request.user, item_list['couchTypeId']
+                                               )
 
-        # Perform any additional logic here (like confirming payment or other actions)
+                if reserved_seats:
+                    messages.success(
+                        request, f"Successfully reserved {
+                            reserved_seats} seats for schedule {item}"
+                    )
+                else:
+                    messages.error(
+                        request, f"Failed to reserve seats for schedule {item}"
+                    )
+        except Exception as e:
+            print('Error:', str(e))  # Debug: Catch and print any errors
+            messages.error(request, "Failed to process reservation data.")
     else:
         messages.error(request, "No items received.")
 
     # Redirect to home after reservation
     return redirect('home')
-
 
 # def reserve_seat(request):
 #     # Get the items as a JSON string
@@ -1505,39 +1560,93 @@ def checkout_bill(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)
 
     if request.method == "POST":
-        print("the bill id is ")
-        print(bill_id)
+        print("The bill ID is:", bill_id)
         bill.mark_as_paid()
-        # Send confirmation email after the user checks out
-        subject = f"Bill Payment Confirmation - Bill ID: {bill.id}"
+
+        # Create a PDF buffer to hold the PDF file
+        pdf_buffer = BytesIO()
+        c = canvas.Canvas(pdf_buffer, pagesize=letter)
+
+        # Add company name
+        c.setFont("Helvetica-Bold", 18)
+        c.setFillColor(colors.darkblue)
+        c.drawString(50, 780, "TrainWrek")
+
+        # Add bill payment confirmation title
+        c.setFont("Helvetica-Bold", 16)
+        c.setFillColor(colors.black)
+        c.drawString(50, 750, "Bill Payment Confirmation")
+
+        # Add bill details
+        c.setFont("Helvetica", 12)
+        c.drawString(50, 730, f"Bill ID: {bill.id}")
+        c.drawString(50, 710, f"Total Amount: Rs {bill.total_amount}")
+        c.drawString(50, 690, f"Date of Payment: {bill.created_at}")
+        c.drawString(50, 670, f"User: {request.user.username}")
+
+        # Draw a horizontal line for separation
+        c.setStrokeColor(colors.grey)
+        c.line(50, 650, 550, 650)
+
+        # Add a table-like structure for billing details
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, 630, "Billing Details")
+        c.setFont("Helvetica", 10)
+        c.drawString(50, 610, f"Total Amount: Rs {bill.total_amount}")
+        c.drawString(50, 590, f"Paid On: {bill.created_at}")
+
+        # Add thank-you message
+        c.drawString(50, 570, "Thank you for your payment. Your transaction has been successfully processed.")
+
+        # Add footer text
+        c.setFont("Helvetica", 8)
+        c.setFillColor(colors.grey)
+        c.drawString(50, 50, "If you have any questions, feel free to contact us.")
+
+        # Draw another line for footer
+        c.setStrokeColor(colors.grey)
+        c.line(50, 45, 550, 45)
+
+        # Finalize the PDF
+        c.showPage()
+        c.save()
+
+        # Rewind the PDF buffer to the beginning
+        pdf_buffer.seek(0)
+
+        # Create email message with PDF attachment
+        subject = f"TrainWrek - Bill Payment Confirmation - Bill ID: {bill.id}"
         message = f"""
         Hello {request.user.username},
 
-        Thank you for your payment! Your bill has been successfully processed.
+        Thank you for choosing TrainWrek!
+
+        Your payment has been successfully processed.
 
         Bill ID: {bill.id}
         Total Amount: Rs {bill.total_amount}
         Date of Payment: {bill.created_at}
 
-        We appreciate your business!
+        Thank you for your business!
+
+        If you have any questions, feel free to contact us.
 
         Regards,
-        Ahmad and Najum 
+        TrainWrek Team
         """
 
-        # Send the email
-        send_mail(
+        email = EmailMessage(
             subject,
             message,
-            # The "from" email (your email address)
             settings.DEFAULT_FROM_EMAIL,
-            [request.user.email],  # The recipient email (user's email address)
-            fail_silently=False
+            [request.user.email]
         )
 
-        # Optionally, you can mark the bill as paid here
-        # bill.status = 'PAYED'  # Assuming you have a "status" field in the Bill model
-        # bill.save()
+        # Attach the PDF to the email
+        email.attach(f"Bill_{bill.id}.pdf", pdf_buffer.getvalue(), 'application/pdf')
+
+        # Send the email
+        email.send(fail_silently=False)
 
         # Redirect to a confirmation page or show a success message
         return render(request, 'reservations/home.html', {'bill': bill})
@@ -1545,7 +1654,6 @@ def checkout_bill(request, bill_id):
     else:
         # Return a 405 Method Not Allowed response for non-POST requests
         return render(request, 'reservations/payment_success.html', {'bill': bill})
-
 
 @login_required
 def checkout___bill(request, bill_id):
@@ -1613,9 +1721,237 @@ def profile_view(request):
     pending_bookings = user_bookings.filter(status='PENDING')
     paid_bookings = user_bookings.filter(status='PAYED')
 
+    # Reverse the order of paid_bookings
+    paid_bookings = paid_bookings.order_by('-date')
+
+    # Get the user's bills (if any)
+    user_bills = Bill.objects.filter(user=user)
+
+    today = timezone.now().date()
+
+    # Separate bills into pending and paid
+    pending_bills = user_bills.filter(is_paid=False)
+    paid_bills = user_bills.filter(is_paid=True).order_by(
+        '-created_at')  # Reverse order using `created_at`
+
+    # Construct a list of dictionaries to structure the context
+    pending_bill_data = []
+    for bill in pending_bills:
+        bookings = bill.userbooking_set.all()
+        pending_bill_data.append({'bill': bill, 'bookings': bookings})
+
+    paid_bill_data = []
+    for bill in paid_bills:
+        bookings = bill.userbooking_set.all()
+        paid_bill_data.append({'bill': bill, 'bookings': bookings})
+
     context = {
         'user': user,
-        'pending_bookings': pending_bookings,
-        'paid_bookings': paid_bookings,
+        'today': today,
+        'pending_bills': pending_bill_data,
+        'paid_bills': paid_bill_data,
     }
+
     return render(request, 'reservations/profile.html', context)
+
+
+# @login_required
+# def delete_booking(request, booking_id):
+#     booking = get_object_or_404(UserBooking, id=booking_id, user=request.user)
+
+#     # Check if the travel date is in the future
+#     if booking.onData > timezone.now().date():
+#         # Delete the booking
+#         bi = booking.bill
+#         bi.total_amount-= booking.cost
+#         bi.save()
+
+#         booking.delete()
+#         messages.success(
+#             request, "Your booking has been deleted successfully.")
+#     else:
+#         messages.error(
+#             request, "You cannot delete a booking with a past travel date.")
+#     # Redirect back to the profile page
+#     return redirect('profile')
+
+
+def send_updated_bill_email(user, bill, old_total_amount, booking_details):
+    # Define the payback policy
+    payback_policy = """
+    Payback Policy:
+    1. If less than 1 week is left until the booking date, 20% of the booking cost will be refunded.
+    2. If less than 2 weeks are left until the booking date, 50% of the booking cost will be refunded.
+    3. Otherwise, 70% of the booking cost will be refunded.
+    """
+
+    # Create a PDF buffer to hold the PDF file
+    pdf_buffer = BytesIO()
+    c = canvas.Canvas(pdf_buffer, pagesize=letter)
+
+    # Define fonts and styles
+    # Add company name as header
+    c.setFont("Helvetica-Bold", 18)
+    c.setFillColor(colors.darkblue)
+    c.drawString(50, 780, "TrainWrek")
+
+    # Add "Updated Bill Details" title
+    c.setFont("Helvetica-Bold", 16)
+    c.setFillColor(colors.black)
+    c.drawString(50, 750, f"Updated Bill Details")
+
+    # Add user details
+    c.setFont("Helvetica", 12)
+    c.drawString(50, 730, f"Bill ID: {bill.id}")
+    c.drawString(50, 710, f"Old Total Amount: Rs {old_total_amount}")
+    c.drawString(50, 690, f"New Total Amount: Rs {bill.total_amount}")
+    c.drawString(50, 670, f"User: {user.username}")
+
+    # Draw a horizontal line for separation
+    c.setStrokeColor(colors.grey)
+    c.line(50, 650, 550, 650)
+
+    # Add custom booking details
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, 630, "Updated Booking Details:")
+    c.setFont("Helvetica", 10)
+    c.drawString(50, 610, booking_details)
+
+    # Add payback policy
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, 590, "Payback Policy:")
+    c.setFont("Helvetica", 10)
+    y = 570  # Starting Y position for the policy
+    for line in payback_policy.split("\n"):
+        c.drawString(50, y, line)
+        y -= 15
+
+    # Add footer text
+    c.setFont("Helvetica", 8)
+    c.setFillColor(colors.grey)
+    c.drawString(50, 50, "If you have any questions, feel free to contact us.")
+
+    # Draw another line for footer
+    c.setStrokeColor(colors.grey)
+    c.line(50, 45, 550, 45)
+
+    # Finalize the PDF
+    c.showPage()
+    c.save()
+
+    # Rewind the PDF buffer to the beginning
+    pdf_buffer.seek(0)
+
+    # Create email message with PDF attachment
+    subject = f"TrainWrek - Updated Bill Details - Bill ID: {bill.id}"
+    message = f"""
+    Hello {user.username},
+
+    Thank you for choosing TrainWrek!
+
+    Your booking has been updated, and the associated bill has been adjusted.
+
+    Bill ID: {bill.id}
+    Old Total Amount: Rs {old_total_amount}
+    New Total Amount: Rs {bill.total_amount}
+
+    Updated Booking Details:
+    {booking_details}
+
+    Payback Policy:
+    1. If less than 1 week is left until the booking date, 20% of the booking cost will be refunded.
+    2. If less than 2 weeks are left until the booking date, 50% of the booking cost will be refunded.
+    3. Otherwise, 70% of the booking cost will be refunded.
+
+    Thank you for using TrainWrek. If you have any questions, feel free to reach out to us.
+
+    Regards,
+    TrainWrek Team
+    """
+
+    email = EmailMessage(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email]
+    )
+
+    # Attach the PDF to the email
+    email.attach(f"Updated_Bill_{bill.id}.pdf",
+                 pdf_buffer.getvalue(), 'application/pdf')
+
+    # Send the email
+    email.send(fail_silently=False)
+
+
+@login_required
+def delete_booking(request, booking_id):
+    # Get the booking object
+    booking = get_object_or_404(UserBooking, id=booking_id, user=request.user)
+
+    # Ensure the booking can be deleted
+    if booking.can_be_deleted():
+        # Save reference to the bill before deleting the booking
+        bill = booking.bill
+        bi = booking.bill
+        old_total_amount = bi.total_amount
+
+        # Calculate days left until the onData attribute
+        days_left = (booking.onData - timezone.now().date()).days
+
+        # Apply the reduction based on the days left
+        if days_left < 7:
+            reduction = booking.cost * 0.2  # 20% of booking cost
+        elif days_left < 14:
+            reduction = booking.cost * 0.5  # 50% of booking cost
+        else:
+            reduction = booking.cost * 0.7  # 70% of booking cost
+
+        bi.total_amount -= int(reduction)
+        bi.save()
+
+        # Delete the booking
+        c1 = booking.schedule.route.sourceStation
+        c2 = booking.schedule.route.destinationStation
+        date = booking.date
+        booking.delete()
+        messages.success(request, "Booking deleted successfully.")
+
+        # Check if the bill has any other bookings
+        if bill and not UserBooking.objects.filter(bill=bill).exists():
+            # Delete the bill if no bookings are associated
+            bill.delete()
+            messages.success(
+                request, "The associated bill has also been deleted.")
+        else:
+            # Send an email about the updated bill details
+            send_updated_bill_email(
+                request.user,
+                bi,
+                old_total_amount,
+                f"from {c1} to {c2}, on date {date}"
+            )
+    else:
+        messages.error(request, "This booking cannot be deleted.")
+
+    return redirect('profile')
+
+
+def remove_booking(request, booking_id):
+    if request.method == "POST":
+        booking = get_object_or_404(UserBooking, id=booking_id)
+
+        # Remove the booking from the bill
+        if booking.bill:
+            bill = booking.bill
+            booking.bill = None
+            booking.save()
+            booking.delete()
+
+            # Update the bill's total amount
+            total_amount = sum(
+                b.cost for b in bill.user.userbooking_set.filter(bill=bill))
+            bill.total_amount = total_amount
+            bill.save()
+
+        return redirect('create_bill')

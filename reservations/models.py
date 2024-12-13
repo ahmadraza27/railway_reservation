@@ -1,4 +1,8 @@
+from django.utils import timezone
 from django.db import models
+from datetime import datetime
+
+from datetime import date
 from datetime import timedelta
 from django.utils.timezone import now
 from django.dispatch import receiver
@@ -79,7 +83,7 @@ class Schedule(models.Model):
     departureTime = models.TimeField()
 
     def __str__(self):
-        return f"Will Arrive At  {self.route.sourceStation.stationName} On {self.arrivalTime} And Will Leave For {self.route.destinationStation.stationName} On Time {self.departureTime}"
+        return f"Will Arrive At  {self.route.sourceStation.stationName} On {self.arrivalTime} And Will Leave For {self.route.destinationStation.stationName} On  {self.departureTime}"
 
     def save(self, *args, **kwargs):
         """Override save to ensure payment is calculated and associated with a bill."""
@@ -117,19 +121,79 @@ class Schedule(models.Model):
                         seat.status.save()
                         print(f"Seat {seat.id} reset to available.")
 
-    def reserve_seats(self, seat_count: int, user: User, couchTypeId: int):
+    # def reserve_seats(self, dateOfBooking, seat_count: int, user: User, couchTypeId: int):
+    #     """
+    #     Reserves the given number of seats in this schedule's train for the provided user.
+    #     """
+    #     reserved_seats = 0
+
+    #     print("this is in schedule ")
+    #     if not dateOfBooking:
+    #         raise ValueError("Date of booking is required.")
+    #     if isinstance(dateOfBooking, str):
+    #         try:
+    #             dateOfBooking = datetime.strptime(
+    #                 dateOfBooking, "%Y-%m-%d").date()
+    #         except ValueError:
+    #             raise ValueError(
+    #                 "Invalid date format. Ensure it is in ISO format (YYYY-MM-DD).")
+
+    #     # Iterate through all couches of the train and reserve seats
+    #     for couch in self.copyTrain.couch_set.all():
+    #         if reserved_seats >= int(seat_count):
+    #             break  # Stop once we have reserved enough seats
+
+    #         for cabin in Cabin.objects.filter(couch__type__id=couchTypeId,couch = couch):
+    #             if reserved_seats >= int(seat_count):
+    #                 break
+
+    #             for seat in cabin.seat_set.filter(status__status='AVL'):
+    #                 # Create a booking for the user
+    #                 user_booking = UserBooking.objects.create(
+    #                     user=user,
+    #                     seat=seat,
+    #                     bed=None,  # You can add logic to select a berth if necessary
+    #                     schedule=self,
+    #                     status='PENDING',  # Set initial status as 'PENDING'
+    #                     onData=dateOfBooking,
+    #                 )
+    #                 user_booking.save()
+
+    #                 reserved_seats += 1
+    #                 if reserved_seats >= seat_count:
+    #                     break  # Stop once we have reserved enough seats
+
+    #     return reserved_seats
+
+    def reserve_seats(self, dateOfBooking, seat_count: int, user: User, couchTypeId: int):
         """
         Reserves the given number of seats in this schedule's train for the provided user.
         """
-        reserved_seats = 0
+        cabin_seats = seat_count//4
+        cabin_seats *= 4
+        colum_seats = seat_count%4
+        reserved_cabin_seats = 0
+        reserved_caolum_seats = 0
 
+        print("this is in schedule ")
+        if not dateOfBooking:
+            raise ValueError("Date of booking is required.")
+        if isinstance(dateOfBooking, str):
+            try:
+                dateOfBooking = datetime.strptime(
+                    dateOfBooking, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError(
+                    "Invalid date format. Ensure it is in ISO format (YYYY-MM-DD).")
+
+        print(1)
         # Iterate through all couches of the train and reserve seats
         for couch in self.copyTrain.couch_set.all():
-            if reserved_seats >= int(seat_count):
+            if reserved_cabin_seats >= int(cabin_seats):
                 break  # Stop once we have reserved enough seats
 
-            for cabin in Cabin.objects.filter(couch__type__id =couchTypeId):
-                if reserved_seats >= int(seat_count):
+            for cabin in Cabin.objects.filter(couch__type__id=couchTypeId,couch = couch):
+                if reserved_cabin_seats >= int(cabin_seats):
                     break
 
                 for seat in cabin.seat_set.filter(status__status='AVL'):
@@ -140,20 +204,48 @@ class Schedule(models.Model):
                         bed=None,  # You can add logic to select a berth if necessary
                         schedule=self,
                         status='PENDING',  # Set initial status as 'PENDING'
+                        onData=dateOfBooking,
                     )
                     user_booking.save()
-                    # Update seat status
-                    # seat.status.status = 'RESERVED'
-                    # seat.status.save()
 
-                    reserved_seats += 1
-                    if reserved_seats >= seat_count:
+                    reserved_cabin_seats += 1
+                    if reserved_cabin_seats >= seat_count:
                         break  # Stop once we have reserved enough seats
 
+                    
+                
+        print(2)
+        for couch in self.copyTrain.couch_set.all():
+            if reserved_caolum_seats >= int(colum_seats):
+                break  # Stop once we have reserved enough seats
+            print(2.1)
 
-        return reserved_seats
+            for colum in Column.objects.filter(couch = couch):
+                if reserved_caolum_seats >= int(colum_seats):
+                    break
 
-    def reserve_beds(self,beds:int ,user: User ,couchTypeId : int):
+                print(2.2)
+                for seat in colum.seat_set.filter(status__status='AVL'):
+                    # Create a booking for the user
+                    print(2.3)
+                    user_booking = UserBooking.objects.create(
+                        user=user,
+                        seat=seat,
+                        bed=None,  # You can add logic to select a berth if necessary
+                        schedule=self,
+                        status='PENDING',  # Set initial status as 'PENDING'
+                        onData=dateOfBooking,
+                    )
+                    user_booking.save()
+
+                    print(2.4)
+                    reserved_caolum_seats += 1
+                    if reserved_caolum_seats >= colum_seats:
+                        break  # Stop once we have reserved enough seats
+
+        print(3)
+        return reserved_cabin_seats
+    def reserve_beds(self, dateOfBooking, beds: int, user: User, couchTypeId: int):
         """
         Reserves the given number of seats in this schedule's train for the provided user.
         """
@@ -168,7 +260,7 @@ class Schedule(models.Model):
                 if reserved_beds >= int(beds):
                     break
 
-                for bed in Bed.objects.filter(berth__cabin__couch__type__id = couchTypeId):
+                for bed in Bed.objects.filter(berth__cabin__couch__type__id=couchTypeId):
                     # Create a booking for the user
                     user_booking = UserBooking.objects.create(
                         user=user,
@@ -176,6 +268,7 @@ class Schedule(models.Model):
                         bed=bed,  # You can add logic to select a berth if necessary
                         schedule=self,
                         status='PENDING',  # Set initial status as 'PENDING'
+                        onData=dateOfBooking,
                     )
                     user_booking.save()
                     # Update seat status
@@ -413,7 +506,7 @@ class Bill(models.Model):
                 book.bed.save()
                 book.status = "PAYED"
                 book.save()
-            
+
         self.save()
 
     def __str__(self):
@@ -422,7 +515,7 @@ class Bill(models.Model):
 
 class UserBooking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    seat = models.ForeignKey(Seat, null=True,on_delete=models.CASCADE)
+    seat = models.ForeignKey(Seat, null=True, on_delete=models.CASCADE)
     # berth = models.ForeignKey(Berth, null=True, on_delete=models.CASCADE)
     bed = models.ForeignKey(Bed, null=True, on_delete=models.CASCADE)
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
@@ -435,19 +528,30 @@ class UserBooking(models.Model):
     )
     date = models.DateTimeField(auto_now_add=True)
 
+    onData = models.DateField()
     cost = models.IntegerField(null=True)
 
     def calculate_total_cost(self):
         """Calculate the total cost based on route distance and couch type price."""
-        if self.bed ==None:
-            route_distance = self.schedule.route.distanceToDestination
-            couch_price = self.seat.cabin.couch.type.price
-            total_cost = route_distance * couch_price
-        elif self.seat ==None:
+        if self.bed == None:
+            if self.seat.inACabin:
+                route_distance = self.schedule.route.distanceToDestination
+                couch_price = self.seat.cabin.couch.type.price
+                total_cost = route_distance * couch_price
+            else:
+                route_distance = self.schedule.route.distanceToDestination
+                couch_price = self.seat.column.couch.type.price
+                total_cost = route_distance * couch_price
+                
+        elif self.seat == None:
             route_distance = self.schedule.route.distanceToDestination
             couch_price = self.bed.berth.cabin.couch.type.price
             total_cost = route_distance * couch_price
         return total_cost
+
+    def can_be_deleted(self):
+        """Returns True if the booking's travel date is in the future."""
+        return self.onData > timezone.now().date()
 
     def save(self, *args, **kwargs):
         """Override save to ensure payment is calculated and associated with a bill."""
@@ -464,7 +568,7 @@ def on_user_booking(sender, instance, created, **kwargs):
     """Creates seats for the columns"""
     print("CHANGING STTUS OF SEATS")
     if created:
-        if instance.bed==None:
+        if instance.bed == None:
             status = Status.objects.create(status="RES")
             instance.seat.status = status
             instance.seat.save()
@@ -472,4 +576,3 @@ def on_user_booking(sender, instance, created, **kwargs):
             status = Status.objects.create(status="RES")
             instance.bed.status = status
             instance.bed.save()
-            

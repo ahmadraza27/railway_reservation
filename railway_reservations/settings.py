@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -122,11 +125,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,"static"),
+    os.path.join(BASE_DIR, "static"),
 ]
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/login/" 
+LOGOUT_REDIRECT_URL = "/login/"
 # Email configuration for Gmail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -134,6 +137,22 @@ EMAIL_PORT = 465  # Port for TLS encryption
 EMAIL_USE_TLS = False
 # Use TLS encryption
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'itsahmadraza27@gmail.com'  # Replace with your Gmail email address
-EMAIL_HOST_PASSWORD = 'jcmm fucs xure mzae'  # Replace with your Gmail password (or app password)
+# Replace with your Gmail email address
+EMAIL_HOST_USER = 'itsahmadraza27@gmail.com'
+# Replace with your Gmail password (or app password)
+EMAIL_HOST_PASSWORD = 'jcmm fucs xure mzae'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+ALLOWED_HOSTS = [
+    "11b0-2400-adc7-942-4100-c3e5-dcd-5eb4-71f.ngrok-free.app",
+    '802f-154-80-113-80.ngrok-free.app' ,
+    "127.0.0.1",  # For local development
+    "localhost",  # For local development
+]
+
+
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS = True

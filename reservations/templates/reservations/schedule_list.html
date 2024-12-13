@@ -18,9 +18,11 @@ schedule list
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">Schedule List</h2>
+        {% if is_admin %}
         <a href="{% url 'create_schedule' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md">
             Add Schedule
         </a>
+        {% endif %}
     </div>
 
     <!-- Schedule Table -->
@@ -32,7 +34,9 @@ schedule list
                     <th class="py-3 px-6 text-left">Route</th>
                     <th class="py-3 px-6 text-left">Arrival Time</th>
                     <th class="py-3 px-6 text-left">Departure Time</th>
+                    {% if is_admin %}
                     <th class="py-3 px-6 text-left">Actions</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody class="text-gray-700">
@@ -48,6 +52,8 @@ schedule list
                     </td>
                     <td class="py-3 px-6">{{ schedule.arrivalTime }}</td>
                     <td class="py-3 px-6">{{ schedule.departureTime }}</td>
+
+                    {% if is_admin %}
                     <td class="py-3 px-6 flex items-center space-x-4">
                         <a href="{% url 'update_schedule' schedule.id %}" class="text-blue-500 hover:underline">
                             Edit
@@ -58,6 +64,7 @@ schedule list
                             Delete
                         </button>
                     </td>
+                   {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
