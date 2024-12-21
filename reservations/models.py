@@ -2,7 +2,6 @@ from django.utils import timezone
 from django.db import models
 from datetime import datetime
 
-from datetime import date
 from datetime import timedelta
 from django.utils.timezone import now
 from django.dispatch import receiver
@@ -171,7 +170,7 @@ class Schedule(models.Model):
         """
         cabin_seats = seat_count//4
         cabin_seats *= 4
-        colum_seats = seat_count%4
+        colum_seats = seat_count % 4
         reserved_cabin_seats = 0
         reserved_caolum_seats = 0
 
@@ -192,7 +191,7 @@ class Schedule(models.Model):
             if reserved_cabin_seats >= int(cabin_seats):
                 break  # Stop once we have reserved enough seats
 
-            for cabin in Cabin.objects.filter(couch__type__id=couchTypeId,couch = couch):
+            for cabin in Cabin.objects.filter(couch__type__id=couchTypeId, couch=couch):
                 if reserved_cabin_seats >= int(cabin_seats):
                     break
 
@@ -212,15 +211,13 @@ class Schedule(models.Model):
                     if reserved_cabin_seats >= seat_count:
                         break  # Stop once we have reserved enough seats
 
-                    
-                
         print(2)
         for couch in self.copyTrain.couch_set.all():
             if reserved_caolum_seats >= int(colum_seats):
                 break  # Stop once we have reserved enough seats
             print(2.1)
 
-            for colum in Column.objects.filter(couch = couch):
+            for colum in Column.objects.filter(couch=couch):
                 if reserved_caolum_seats >= int(colum_seats):
                     break
 
@@ -245,6 +242,7 @@ class Schedule(models.Model):
 
         print(3)
         return reserved_cabin_seats
+
     def reserve_beds(self, dateOfBooking, beds: int, user: User, couchTypeId: int):
         """
         Reserves the given number of seats in this schedule's train for the provided user.
@@ -542,7 +540,7 @@ class UserBooking(models.Model):
                 route_distance = self.schedule.route.distanceToDestination
                 couch_price = self.seat.column.couch.type.price
                 total_cost = route_distance * couch_price
-                
+
         elif self.seat == None:
             route_distance = self.schedule.route.distanceToDestination
             couch_price = self.bed.berth.cabin.couch.type.price

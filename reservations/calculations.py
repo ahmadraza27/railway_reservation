@@ -1,6 +1,4 @@
 from datetime import datetime, timedelta
-from django.db.models import Q
-from itertools import product
 import pprint
 from .models import City, Route, Schedule, Station, Couch, Seat, CouchType,Bed
 

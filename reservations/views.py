@@ -1,15 +1,9 @@
 # Assuming calculations is your module for getting cities and routes
 from django.core.mail import EmailMessage
-from django.utils.timezone import now
-from django.templatetags.static import static
-from datetime import timedelta
 from django.utils import timezone
 from reportlab.lib import colors
-from django.core.mail.message import EmailMessage
-from django.template.loader import render_to_string
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from django.http import HttpResponse
 from io import BytesIO
 from django.db.models import Q
 import json
@@ -18,7 +12,6 @@ from django.http import Http404, HttpResponseForbidden
 from django.views.generic import ListView, UpdateView, DeleteView
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db import transaction
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
@@ -29,10 +22,8 @@ from django.db import transaction
 from . import calculations
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from . import calculations
 # Create your views here.
-from django.forms import modelform_factory, modelformset_factory
-from .models import Train, CouchType, Couch, Cabin, Seat, Location, Status, UserBooking, Schedule, User, Berth, Bed, Bill
+from .models import Train, CouchType, Couch,  Seat, Location, Status, UserBooking, Schedule, User, Berth, Bed, Bill
 from .forms import *
 from .forms import AddCouchForm  # Assuming you create a CouchForm
 from django.views.decorators.csrf import csrf_exempt
@@ -47,8 +38,6 @@ def logout_view(request):
 
 
 allowed_users(allowed_roles=['admin'])
-
-
 def admin_signup_view(request):
     # if request.user.is_authenticated:
     #     return redirect("/")  # Redirect to home if already logged in
@@ -421,8 +410,7 @@ def delete_couch(request, couch_id):
         couch.delete()
 
         # Add a success message
-        messages.success(request, f'Couch {
-                         couch.code} has been deleted successfully.')
+        messages.success(request, f'Couch {couch.code} has been deleted successfully.')
 
         # Redirect back to the train details page
         return redirect('train_detail', train.id)
@@ -1553,6 +1541,22 @@ def create_bill(request):
     # else:
     #     # Redirect to a page or display a message indicating no unpaid bookings
     #     return redirect("booking")
+
+# -- Insert tab in Normal mode (using spaces if soft tabs are enabled)
+# vim.api.nvim_set_keymap('n', '<Tab>', '>>', { noremap = true, silent = true })
+
+# -- Insert tab in Visual mode (indent the selected text)
+# vim.api.nvim_set_keymap('v', '<Tab>', '>gv', { noremap = true, silent = true })
+
+# -- Unindent using Shift+Tab in Normal and Visual modes
+# vim.api.nvim_set_keymap('n', '<S-Tab>', '<<', { noremap = true, silent = true })
+# vim.api.nvim_set_keymap('v', '<S-Tab>', '<gv', { noremap = true, silent = true })
+
+# -- Ensure soft tab (spaces) is set
+# vim.o.expandtab = true        -- Use spaces instead of tabs
+# vim.o.shiftwidth = 4          -- Number of spaces to use for indentation
+# vim.o.softtabstop = 4         -- Number of spaces for a tab in insert mode
+# vim.o.tabstop = 4             -- Number of spaces a tab character represents
 
 
 @login_required
