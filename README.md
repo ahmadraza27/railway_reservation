@@ -1,4 +1,4 @@
-<img width="1849" height="956" alt="Screenshot from 2024-12-15 18-28-05" src="https://github.com/user-attachments/assets/aa488456-798c-4cea-8bfc-8a47526f48ec" /> # 🚂 TrainWrek: Railway Reservation System
+ <img width="1849" height="956" alt="Screenshot from 2024-12-10 22-44-08" src="https://github.com/user-attachments/assets/4ecc67a3-d7fe-4279-9c80-0093efe82c51" />
 
 **TrainWrek** is a comprehensive Django-based railway management and booking system. The `reservations` application handles everything from route pathfinding and schedule management to granular seat and bed reservations.
 
